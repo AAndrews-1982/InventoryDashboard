@@ -1,40 +1,44 @@
-import React, { useState } from 'react';
+// src/components/Header.tsx
+import React from 'react';
 
-const Header = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [timestamp, setTimestamp] = useState('');
+type HeaderProps = {
+  timestamp: string;
+};
 
-  // Simulate timestamp for now (can be passed in later)
-  const fakeTimestamp = timestamp || 'Last updated: —';
-
+const Header: React.FC<HeaderProps> = ({ timestamp }) => {
   return (
-    <header className="w-full bg-white border-b border-gray-200 flex items-center justify-between px-4 py-3 md:ml-48">
-      {/* Left: Logo on mobile */}
-      <div className="md:hidden text-red-600 text-xl font-bold">
-        Ruth's Chicken
-      </div>
+    <header className="w-full bg-white border-b border-gray-200 px-4 py-3 md:ml-0">
+      {/* Mobile: Logo | Title+Timestamp | Hamburger */}
+      <div className="flex md:hidden items-center justify-between h-24 px-2">
+        {/* Left: Logo */}
+        <img
+          src="/Ruths-Logo-red.png"
+          alt="Ruth's Chicken Logo"
+          className="h-28 w-auto object-contain"
+        />
 
-      {/* Center: Title + Timestamp */}
-      <div className="flex flex-col items-end md:items-start md:flex-row md:justify-between w-full md:ml-4">
-        <h1 className="text-xl font-semibold text-red-600">Inventory Dashboard</h1>
-        <p className="text-sm text-gray-500 md:ml-4">{fakeTimestamp}</p>
-      </div>
+        {/* Center: Title + Timestamp */}
+        <div className="flex flex-col justify-center items-center text-center h-full flex-grow px-2">
+          <h1 className="text-3xl font-bold text-red-600 leading-tight">
+            Inventory Dashboard
+          </h1>
+          <p className="text-xs text-gray-500">
+            {timestamp ? `Last updated: ${timestamp}` : 'Last updated: —'}
+          </p>
+        </div>
 
-      {/* Right: Hamburger */}
-      <div className="md:hidden">
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="text-red-600 focus:outline-none text-xl"
-        >
+        {/* Right: Hamburger */}
+        <button className="text-red-600 focus:outline-none text-2xl ml-2">
           ☰
         </button>
-        {menuOpen && (
-          <div className="absolute right-4 top-14 bg-white border border-gray-200 shadow-md rounded-md p-4 space-y-2 z-10">
-            <a href="https://orderlink1.com" target="_blank" rel="noreferrer" className="block text-sm text-gray-700">Order Link 1</a>
-            <a href="https://orderlink2.com" target="_blank" rel="noreferrer" className="block text-sm text-gray-700">Order Link 2</a>
-            <a href="https://orderlink3.com" target="_blank" rel="noreferrer" className="block text-sm text-gray-700">Order Link 3</a>
-          </div>
-        )}
+      </div>
+
+      {/* Desktop: Title + Timestamp */}
+      <div className="hidden md:block text-left">
+        <h1 className="text-3xl font-bold text-red-600">Inventory Dashboard</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          {timestamp ? `Last updated: ${timestamp}` : 'Last updated: —'}
+        </p>
       </div>
     </header>
   );

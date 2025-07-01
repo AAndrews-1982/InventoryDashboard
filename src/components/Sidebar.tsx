@@ -3,13 +3,17 @@ import React from 'react';
 
 const Sidebar = () => {
   return (
-    <aside className="hidden md:flex flex-col bg-red-600 text-white w-48 h-screen fixed top-0 left-0 p-4">
-      {/* Logo */}
-      <div className="text-2xl font-bold mb-8">
-        Ruth's Chicken™
+    <aside className="hidden md:flex flex-col bg-red-600 text-white w-60 h-screen fixed top-0 left-0 p-4">
+      {/* Logo: large, left-aligned, not stretched */}
+      <div className="mb-10 mt-0 pl-1">
+        <img
+          src="/Ruths-Logo.png"
+          alt="Ruth's Chicken Logo"
+          className="h-100 w-64 object-contain"
+        />
       </div>
 
-      {/* Order Links Section */}
+      {/* Order Links Section (aligned left) */}
       <div className="text-left">
         <h2 className="text-lg font-bold mb-2">Order Links</h2>
         <nav className="space-y-2 pl-1">
