@@ -7,7 +7,7 @@ const Sidebar = () => {
       {/* Logo: large, left-aligned, not stretched */}
       <div className="mb-10 mt-0 pl-1">
         <img
-          src="/Ruths-Logo.png"
+          src={`${import.meta.env.BASE_URL}Ruths-Logo.png`}
           alt="Ruth's Chicken Logo"
           className="h-100 w-64 object-contain"
         />
