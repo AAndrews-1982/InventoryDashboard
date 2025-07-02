@@ -13,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({ timestamp }) => {
       {/* Mobile: Logo | Title+Timestamp | Hamburger */}
       <div className="flex md:hidden items-center justify-between h-24 px-2 mb-4">
         <img
-          src="./Ruths-Logo-red.png"
+          src={`${import.meta.env.BASE_URL}Ruths-Logo-red.png`}
           alt="Ruth's Chicken Logo"
           className="h-20 w-auto object-contain"
         />
