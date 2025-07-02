@@ -107,7 +107,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp })
           onClick={handleSend}
           className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded"
         >
-          Send
+          Confirm
         </button>
       </div>
     </div>
