@@ -1,6 +1,7 @@
 // src/components/InventoryDashboard.tsx
 import React, { useState } from 'react';
 import { inventoryData, InventoryItem } from '../data/inventoryData';
+import { generateInventoryPdf } from '../utils/generatePdf';
 
 type InventoryDashboardProps = {
   setTimestamp: (value: string) => void;
@@ -48,6 +49,19 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
     } else {
       alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
     }
+
+    // ✅ Generate and download the PDF report
+    generateInventoryPdf(
+      items.map(item => ({
+        name: item.name,
+        stock: item.stock,
+        required: item.required,
+        order: Math.max(0, item.required - item.stock),
+        note: '', // Optionally pull from a note-tracking state
+      })),
+      role,
+      timestamp
+    );
   };
 
   const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage')[] = ['Refrigerator', 'Freezer', 'Dry Storage'];
