@@ -1,34 +1,125 @@
-# Ruth's Chicken™ Inventory Dashboard
+# Ruth's Inventory Dashboard™
 
-A user-friendly, mobile-responsive inventory dashboard built with **React 17** and **Tailwind CSS v2.2.19** to help Ruth's Chicken restaurant staff efficiently track and report inventory across multiple storage areas.
+This is a custom-built Inventory Management Dashboard for **Ruth’s Chicken**.  
+It allows **Team Members** to submit stock counts, and **Managers** to review, order, and generate professional PDF reports.
+
+---
+
+## Built With
+
+- **React 17** (for stability and wide device compatibility)
+- **TypeScript**
+- **Tailwind CSS**
+- **Vite**
+- **jsPDF + AutoTable** (for PDF generation)
 
 ---
 
 ## Features
 
-- Track stock across **Refrigerator**, **Freezer**, and **Dry Storage**
-- Dropdown inputs for quick inventory entry
-- Timestamp feature auto-generates report time
-- Fully responsive for mobile and desktop
-- Branded sidebar with **Order Links** (visible only on desktop)
-- Hamburger menu for Order Links on mobile
-- Red, white, and light gray color theme
+### Team Member Dashboard
+
+- Input current stock levels via dropdown
+- Fields auto-fill with required amount to identify unupdated rows
+- Enter **staff notes** per item
+- View filterable sections:
+  - Refrigerator
+  - Freezer
+  - Dry Storage
+- Two-step confirmation:
+  - Warns if items are unchanged
+  - Second click confirms all is reviewed
+- Sends report to manager view with notes
+- No access to ordering links
 
 ---
 
-## Tech Stack
+### Manager Dashboard
 
-- **React 17**
-- **Tailwind CSS v2.2.19**
-- **Vite v2.9.16**
-- TypeScript
+- PIN-protected access from shared app
+- View all inventory submitted by team
+- Read-only **stock** and **staff notes**
+- Separate **manager notes**
+- Items that are low/out-of-stock and not clicked:
+  - Get highlighted
+  - Trigger warning popup
+- Each item name links directly to a supplier site
+- Two-step confirmation:
+  - First click checks for missed orders
+  - Item fields are highlighted if missed
+  - Second click confirms submission
+- Generates and downloads a **styled PDF report**
 
 ---
 
-# License
+## PDF Report Includes
 
-This project is for internal use by Ruth's Chicken™ staff only. Not intended for public distribution.
+- Header: "Inventory Report"
+- Timestamp
+- Role view ("Team Member" or "Manager View")
+- Manager Confirmation line (if manager)
+- Full inventory table:
+  - Item, Stock, Required, Order, Notes
+- Both Staff and Manager notes included
+  - Notes section format:
+    ```
+    Staff Notes:
+    [text]
+
+    Manager Note:
+    [text]
+    ```
+
+---
+
+## Role Switching
+
+- Accessible via the "Manager Dashboard" button
+- Requires a secure PIN (e.g. `5555`)
+- PIN stored securely in state; resets on refresh
+
+---
+
+## 📂 Project Structure
+
+src/
+├── components/
+│ ├── Header.tsx
+│ └── InventoryDashboard.tsx
+├── data/
+│ └── inventoryData.ts
+├── utils/
+│ └── generatePdf.ts
+├── App.tsx
+└── main.tsx
 
 
+---
 
+## Deployment
 
+- App is compatible with GitHub Pages
+- Assets (images, logos) loaded using `import.meta.env.BASE_URL`
+- PDF downloads locally upon submission
+
+---
+
+## Future Ideas
+
+- Email PDF to company inbox
+- LocalStorage persistence for staff entries
+- Dashboard summary counts (e.g. “4 items low”)
+- Optional vendor select dropdowns
+- Dark mode toggle 🌙
+
+---
+
+## Created for Ruth's Chicken™
+
+This system was custom designed to support the unique operations of a fast casual chicken restaurant.
+
+> “If you fail to prepare, you're preparing to fail.” – Ruth
+
+---
+
+## Built With ❤️ by Alton Andrews
