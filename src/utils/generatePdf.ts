@@ -17,12 +17,12 @@ export function generateInventoryPdf(
 ) {
   const doc = new jsPDF();
 
-  // ✅ Header
+  // Header
   doc.setFontSize(18);
   doc.setTextColor(200, 0, 0);
   doc.text('Inventory Report', 105, 20, { align: 'center' });
 
-  // ✅ Meta Info
+  // Meta Info
   doc.setFontSize(11);
   doc.setTextColor(40, 40, 40);
   doc.text(`View: ${role === 'manager' ? 'Manager' : 'Team Member'}`, 14, 30);
@@ -34,23 +34,36 @@ export function generateInventoryPdf(
     doc.text('✔ Manager’s Confirmation: All items reviewed and approved.', 14, 44);
   }
 
-  // ✅ Table data
+  // Table body formatting for notes
+  const formatNotes = (raw: string) => {
+    const parts = raw.split(' | ').map(note => note.trim());
+    const staffNote = parts.find(n => n.startsWith('Staff:'));
+    const managerNote = parts.find(n => n.startsWith('Manager:'));
+
+    return [
+      staffNote ? `Staff Notes:\n${staffNote.replace('Staff: ', '')}` : '',
+      managerNote ? `Manager Note:\n${managerNote.replace('Manager: ', '')}` : '',
+    ].filter(Boolean).join('\n\n');
+  };
+
+  // Table Data
   const tableData = items.map(item => [
     item.name,
     item.stock.toString(),
     item.required.toString(),
     item.order.toString(),
-    item.note || '',
+    formatNotes(item.note || ''),
   ]);
 
   autoTable(doc, {
     startY: role === 'manager' ? 50 : 42,
-    head: [['Item', 'Stock', 'Required', 'Order', 'Note']],
+    head: [['Item', 'Stock', 'Required', 'Order', 'Notes']],
     body: tableData,
     theme: 'grid',
     styles: {
       fontSize: 10,
       cellPadding: 3,
+      valign: 'top',
     },
     headStyles: {
       fillColor: [204, 0, 0],
@@ -60,9 +73,11 @@ export function generateInventoryPdf(
     alternateRowStyles: {
       fillColor: [245, 245, 245],
     },
+    columnStyles: {
+      4: { cellWidth: 80 },
+    },
   });
 
-  // ✅ Save as file
   const fileName = `InventoryReport-${timestamp.replace(/[/:]/g, '-')}.pdf`;
   doc.save(fileName);
 }

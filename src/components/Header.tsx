@@ -9,7 +9,7 @@ type HeaderProps = {
 
 const Header: React.FC<HeaderProps> = ({ timestamp, onManagerClick, role }) => {
   return (
-    <header className="w-full h-26 md:h-40 bg-white border-b border-gray-200 px-4 py-3 relative z-10">
+    <header className="w-full h-28 md:h-40 bg-white border-b border-gray-200 px-4 py-3 relative z-10">
       {/* Desktop Layout */}
       <div className="hidden md:flex items-center justify-between h-full relative">
         <img

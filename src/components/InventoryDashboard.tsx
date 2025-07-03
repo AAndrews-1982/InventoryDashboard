@@ -8,16 +8,41 @@ type InventoryDashboardProps = {
   role: 'staff' | 'manager';
 };
 
+type ItemWithNotes = InventoryItem & {
+  staffNote?: string;
+  managerNote?: string;
+};
+
 const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, role }) => {
-  const [items, setItems] = useState(inventoryData);
+  const [items, setItems] = useState<ItemWithNotes[]>(
+    inventoryData.map(item => ({
+      ...item,
+      stock: item.required,
+      staffNote: '',
+      managerNote: '',
+    }))
+  );
   const [filter, setFilter] = useState<'Refrigerator' | 'Freezer' | 'Dry Storage' | 'All'>('All');
   const [clickedItemIds, setClickedItemIds] = useState<number[]>([]);
   const [missedItemIds, setMissedItemIds] = useState<number[]>([]);
+  const [managerReadyToSubmit, setManagerReadyToSubmit] = useState(false);
 
   const handleStockChange = (id: number, value: number) => {
     setItems(prev =>
       prev.map(item =>
         item.id === id ? { ...item, stock: value } : item
+      )
+    );
+  };
+
+  const handleNoteChange = (
+    id: number,
+    value: string,
+    field: 'staffNote' | 'managerNote'
+  ) => {
+    setItems(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, [field]: value } : item
       )
     );
   };
@@ -41,27 +66,59 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
 
       if (missed.length > 0) {
         setMissedItemIds(missed);
+        setManagerReadyToSubmit(false);
         alert('⚠️ Some items are low or out of stock and were not reviewed. Please check highlighted rows.');
-      } else {
-        setMissedItemIds([]);
-        alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
+        return;
       }
-    } else {
-      alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
-    }
 
-    // ✅ Generate and download the PDF report
-    generateInventoryPdf(
-      items.map(item => ({
-        name: item.name,
-        stock: item.stock,
-        required: item.required,
-        order: Math.max(0, item.required - item.stock),
-        note: '', // Optionally pull from a note-tracking state
-      })),
-      role,
-      timestamp
-    );
+      if (!managerReadyToSubmit) {
+        setMissedItemIds([]);
+        setManagerReadyToSubmit(true);
+        alert('✅ All items reviewed. Click Confirm again to generate report.');
+        return;
+      }
+
+      setManagerReadyToSubmit(false);
+      alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
+      generateInventoryPdf(
+        items.map(item => ({
+          name: item.name,
+          stock: item.stock,
+          required: item.required,
+          order: Math.max(0, item.required - item.stock),
+          note: [
+            item.staffNote ? `Staff: ${item.staffNote}` : '',
+            item.managerNote ? `Manager: ${item.managerNote}` : '',
+          ].filter(Boolean).join(' | ')
+        })),
+        role,
+        timestamp
+      );
+    } else {
+      const unchanged = items
+        .filter(item => item.stock === item.required)
+        .map(item => item.id);
+
+      if (unchanged.length > 0) {
+        setMissedItemIds(unchanged);
+        alert('⚠️ Some items were left unchanged. Please review highlighted rows.');
+        return;
+      }
+
+      setMissedItemIds([]);
+      alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
+      generateInventoryPdf(
+        items.map(item => ({
+          name: item.name,
+          stock: item.stock,
+          required: item.required,
+          order: Math.max(0, item.required - item.stock),
+          note: item.staffNote ? `Staff: ${item.staffNote}` : ''
+        })),
+        role,
+        timestamp
+      );
+    }
   };
 
   const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage')[] = ['Refrigerator', 'Freezer', 'Dry Storage'];
@@ -87,7 +144,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
             <tbody>
               {filteredSection.map(item => {
                 const order = Math.max(0, item.required - item.stock);
-                const isMissed = role === 'manager' && missedItemIds.includes(item.id);
+                const isMissed = missedItemIds.includes(item.id);
                 return (
                   <tr
                     key={item.id}
@@ -125,12 +182,29 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
                     </td>
                     <td className="border border-black px-2 py-1">{item.required}</td>
                     <td className="border border-black px-2 py-1">{order}</td>
-                    <td className="border border-black px-2 py-1">
-                      <input
-                        type="text"
-                        className="w-full px-1 border border-gray-300 rounded"
-                        placeholder="Note"
-                      />
+                    <td className="border border-black px-2 py-1 text-left text-sm">
+                      {role === 'manager' && item.staffNote && (
+                        <div className="text-gray-600 mb-1">
+                          <strong>Staff:</strong> {item.staffNote}
+                        </div>
+                      )}
+                      {role === 'staff' ? (
+                        <input
+                          type="text"
+                          value={item.staffNote}
+                          onChange={(e) => handleNoteChange(item.id, e.target.value, 'staffNote')}
+                          className="w-full px-1 border border-gray-300 rounded"
+                          placeholder="Note"
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          value={item.managerNote}
+                          onChange={(e) => handleNoteChange(item.id, e.target.value, 'managerNote')}
+                          className="w-full px-1 border border-gray-300 rounded"
+                          placeholder="Manager Note"
+                        />
+                      )}
                     </td>
                   </tr>
                 );
@@ -144,7 +218,6 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
 
   return (
     <div className="p-4">
-      {/* Filter Buttons */}
       <div className="flex space-x-2 mb-4">
         {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
           <button
@@ -159,10 +232,8 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
         ))}
       </div>
 
-      {/* Grouped Sections */}
       {locations.map(loc => renderSection(loc))}
 
-      {/* Send Button */}
       <div className="mt-6">
         <button
           onClick={handleSend}
