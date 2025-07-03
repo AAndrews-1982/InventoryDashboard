@@ -5,11 +5,13 @@ export type InventoryItem = {
   stock: number;
   required: number;
   note?: string;
-  url?: string; // ✅ Optional vendor link
+  url?: string; // Optional vendor link
 };
 
 export const inventoryData: InventoryItem[] = [
+
   // Refrigerator
+
   {
     id: 1,
     name: 'Tender (Case)',
@@ -41,9 +43,11 @@ export const inventoryData: InventoryItem[] = [
   { id: 8, name: 'Margarine', stock: 0, required: 5, location: 'Refrigerator' },
 
   // Freezer
+
   { id: 9, name: 'Crinkle Fries', stock: 0, required: 5, location: 'Freezer' },
 
   // Dry Goods
+
   { id: 10, name: 'Green Apples', stock: 0, required: 5, location: 'Dry Storage' },
   { id: 11, name: 'Red Apples', stock: 0, required: 5, location: 'Dry Storage' },
   { id: 12, name: 'Brown Sugar', stock: 0, required: 5, location: 'Dry Storage' },
