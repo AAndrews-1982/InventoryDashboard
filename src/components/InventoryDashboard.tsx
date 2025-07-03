@@ -26,6 +26,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
   const [clickedItemIds, setClickedItemIds] = useState<number[]>([]);
   const [missedItemIds, setMissedItemIds] = useState<number[]>([]);
   const [managerReadyToSubmit, setManagerReadyToSubmit] = useState(false);
+  const [staffReadyToSubmit, setStaffReadyToSubmit] = useState(false);
 
   const handleStockChange = (id: number, value: number) => {
     setItems(prev =>
@@ -67,14 +68,14 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
       if (missed.length > 0) {
         setMissedItemIds(missed);
         setManagerReadyToSubmit(false);
-        alert('⚠️ Some items are low or out of stock and were not reviewed. Please check highlighted rows.');
+        alert('Some items are low or out of stock and were not reviewed. Please check highlighted rows.');
         return;
       }
 
       if (!managerReadyToSubmit) {
         setMissedItemIds([]);
         setManagerReadyToSubmit(true);
-        alert('✅ All items reviewed. Click Confirm again to generate report.');
+        alert('All items reviewed. Click Confirm again to generate report.');
         return;
       }
 
@@ -99,10 +100,16 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
         .filter(item => item.stock === item.required)
         .map(item => item.id);
 
-      if (unchanged.length > 0) {
+      if (unchanged.length > 0 && !staffReadyToSubmit) {
         setMissedItemIds(unchanged);
-        alert('⚠️ Some items were left unchanged. Please review highlighted rows.');
+        setStaffReadyToSubmit(true);
+        alert('Some items were not complete. Please verify.');
         return;
+      }
+
+      if (staffReadyToSubmit) {
+        alert('I have confirmed all items are correct and ready to send to Manager.');
+        setStaffReadyToSubmit(false);
       }
 
       setMissedItemIds([]);
