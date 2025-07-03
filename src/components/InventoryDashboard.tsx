@@ -4,11 +4,14 @@ import { inventoryData, InventoryItem } from '../data/inventoryData';
 
 type InventoryDashboardProps = {
   setTimestamp: (value: string) => void;
+  role: 'staff' | 'manager';
 };
 
-const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp }) => {
+const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, role }) => {
   const [items, setItems] = useState(inventoryData);
   const [filter, setFilter] = useState<'Refrigerator' | 'Freezer' | 'Dry Storage' | 'All'>('All');
+  const [clickedItemIds, setClickedItemIds] = useState<number[]>([]);
+  const [missedItemIds, setMissedItemIds] = useState<number[]>([]);
 
   const handleStockChange = (id: number, value: number) => {
     setItems(prev =>
@@ -18,11 +21,33 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp })
     );
   };
 
+  const handleItemClick = (id: number) => {
+    if (!clickedItemIds.includes(id)) {
+      setClickedItemIds(prev => [...prev, id]);
+    }
+  };
+
   const handleSend = () => {
     const now = new Date();
     const timestamp = now.toLocaleString();
     setTimestamp(timestamp);
-    alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
+
+    if (role === 'manager') {
+      const missed = items
+        .filter(item => item.stock < item.required && item.url)
+        .filter(item => !clickedItemIds.includes(item.id))
+        .map(item => item.id);
+
+      if (missed.length > 0) {
+        setMissedItemIds(missed);
+        alert('⚠️ Some items are low or out of stock and were not reviewed. Please check highlighted rows.');
+      } else {
+        setMissedItemIds([]);
+        alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
+      }
+    } else {
+      alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
+    }
   };
 
   const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage')[] = ['Refrigerator', 'Freezer', 'Dry Storage'];
@@ -48,19 +73,41 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp })
             <tbody>
               {filteredSection.map(item => {
                 const order = Math.max(0, item.required - item.stock);
+                const isMissed = role === 'manager' && missedItemIds.includes(item.id);
                 return (
-                  <tr key={item.id}>
-                    <td className="border border-black px-2 py-1 text-left">{item.name}</td>
+                  <tr
+                    key={item.id}
+                    className={isMissed ? 'bg-yellow-100 border-2 border-red-500' : ''}
+                  >
+                    <td className="border border-black px-2 py-1 text-left">
+                      {role === 'manager' && item.url ? (
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => handleItemClick(item.id)}
+                          className="text-blue-600 underline hover:text-blue-800"
+                        >
+                          {item.name}
+                        </a>
+                      ) : (
+                        item.name
+                      )}
+                    </td>
                     <td className="border border-black px-2 py-1">
-                      <select
-                        value={item.stock}
-                        onChange={e => handleStockChange(item.id, Number(e.target.value))}
-                        className="border rounded px-2 py-1"
-                      >
-                        {Array.from({ length: 11 }, (_, i) => (
-                          <option key={i} value={i}>{i}</option>
-                        ))}
-                      </select>
+                      {role === 'staff' ? (
+                        <select
+                          value={item.stock}
+                          onChange={e => handleStockChange(item.id, Number(e.target.value))}
+                          className="border rounded px-2 py-1"
+                        >
+                          {Array.from({ length: 11 }, (_, i) => (
+                            <option key={i} value={i}>{i}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span>{item.stock}</span>
+                      )}
                     </td>
                     <td className="border border-black px-2 py-1">{item.required}</td>
                     <td className="border border-black px-2 py-1">{order}</td>
