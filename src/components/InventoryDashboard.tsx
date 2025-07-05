@@ -16,7 +16,7 @@ type ItemWithNotes = InventoryItem & {
 const LOCAL_STORAGE_KEY = 'ruths_inventory_data';
 const TIMESTAMP_KEY = 'ruths_inventory_timestamp';
 const EXPIRATION_MINUTES = 120; // 2 hours
-const WARNING_THRESHOLD_MINUTES = 30; // changed from 10 to 30
+const WARNING_THRESHOLD_MINUTES = 30;
 
 const getStoredData = () => {
   const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -26,7 +26,7 @@ const getStoredData = () => {
 
   const then = new Date(timestamp);
   const now = new Date();
-  const diff = (now.getTime() - then.getTime()) / (1000 * 60); // in minutes
+  const diff = (now.getTime() - then.getTime()) / (1000 * 60);
 
   return diff <= EXPIRATION_MINUTES ? { data: JSON.parse(stored), age: diff } : null;
 };
@@ -180,16 +180,16 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
 
     return (
       <div key={location} className="mb-6">
-        <h2 className="text-lg font-bold text-red-600 mb-2">{location}</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-black text-center">
+        <h2 className="text-base sm:text-lg font-bold text-red-600 mb-2">{location}</h2>
+        <div className="w-full">
+          <table className="w-full table-fixed border border-black text-center text-xs sm:text-sm">
             <thead>
               <tr className="bg-red-600 text-white">
-                <th className="border border-black px-2 py-1">ITEM</th>
-                <th className="border border-black px-2 py-1">STOCK</th>
-                <th className="border border-black px-2 py-1">REQUIRED</th>
-                <th className="border border-black px-2 py-1">ORDER</th>
-                <th className="border border-black px-2 py-1">NOTE</th>
+                <th className="border border-black px-1 sm:px-2 py-1">ITEM</th>
+                <th className="border border-black px-1 sm:px-2 py-1">STOCK</th>
+                <th className="border border-black px-1 sm:px-2 py-1">REQUIRED</th>
+                <th className="border border-black px-1 sm:px-2 py-1">ORDER</th>
+                <th className="border border-black px-1 sm:px-2 py-1">NOTE</th>
               </tr>
             </thead>
             <tbody>
@@ -197,11 +197,8 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
                 const order = Math.max(0, item.required - item.stock);
                 const isMissed = missedItemIds.includes(item.id);
                 return (
-                  <tr
-                    key={item.id}
-                    className={isMissed ? 'bg-yellow-100 border-2 border-red-500' : ''}
-                  >
-                    <td className="border border-black px-2 py-1 text-left">
+                  <tr key={item.id} className={isMissed ? 'bg-yellow-100 border-2 border-red-500' : ''}>
+                    <td className="border border-black px-1 sm:px-2 py-1 text-left font-bold">
                       {role === 'manager' && item.url ? (
                         <a
                           href={item.url}
@@ -216,12 +213,12 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
                         item.name
                       )}
                     </td>
-                    <td className="border border-black px-2 py-1">
+                    <td className="border border-black px-1 sm:px-2 py-1">
                       {role === 'staff' ? (
                         <select
                           value={item.stock}
                           onChange={e => handleStockChange(item.id, Number(e.target.value))}
-                          className="border rounded px-2 py-1"
+                          className="border rounded px-1 sm:px-2 py-1"
                         >
                           {Array.from({ length: 11 }, (_, i) => (
                             <option key={i} value={i}>{i}</option>
@@ -231,9 +228,9 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
                         <span>{item.stock}</span>
                       )}
                     </td>
-                    <td className="border border-black px-2 py-1">{item.required}</td>
-                    <td className="border border-black px-2 py-1">{order}</td>
-                    <td className="border border-black px-2 py-1 text-left text-sm">
+                    <td className="border border-black px-1 sm:px-2 py-1">{item.required}</td>
+                    <td className="border border-black px-1 sm:px-2 py-1">{order}</td>
+                    <td className="border border-black px-1 sm:px-2 py-1 text-left">
                       {role === 'manager' && item.staffNote && (
                         <div className="text-gray-600 mb-1">
                           <strong>Staff:</strong> {item.staffNote}
@@ -244,7 +241,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
                           type="text"
                           value={item.staffNote}
                           onChange={(e) => handleNoteChange(item.id, e.target.value, 'staffNote')}
-                          className="w-full px-1 border border-gray-300 rounded"
+                          className="w-full px-1 border border-gray-300 rounded text-xs sm:text-sm"
                           placeholder="Note"
                         />
                       ) : (
@@ -252,7 +249,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
                           type="text"
                           value={item.managerNote}
                           onChange={(e) => handleNoteChange(item.id, e.target.value, 'managerNote')}
-                          className="w-full px-1 border border-gray-300 rounded"
+                          className="w-full px-1 border border-gray-300 rounded text-xs sm:text-sm"
                           placeholder="Manager Note"
                         />
                       )}
@@ -268,23 +265,21 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
   };
 
   return (
-    <div className="p-4 w-full overflow-x-auto">
-      <div className="flex space-x-2 mb-4">
+    <div className="p-4 w-full">
+      <div className="flex flex-wrap gap-2 mb-4">
         {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
           <button
             key={loc}
             onClick={() => setFilter(loc as any)}
-            className={`bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ${
-              filter === loc ? 'ring-2 ring-red-800' : ''
-            }`}
+            className={`bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ${filter === loc ? 'ring-2 ring-red-800' : ''}`}
           >
             {loc}
           </button>
         ))}
       </div>
-
+  
       {locations.map(loc => renderSection(loc))}
-
+  
       <div className="mt-6">
         <button
           onClick={handleSend}
@@ -296,5 +291,6 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
     </div>
   );
 };
+  
 
 export default InventoryDashboard;
