@@ -208,7 +208,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={() => handleItemClick(item.id)}
-                          className="text-blue-600 underline hover:text-blue-800"
+                          className="font-bold text-black"
                         >
                           {item.name}
                         </a>
