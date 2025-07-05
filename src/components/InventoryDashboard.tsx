@@ -268,7 +268,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 w-full overflow-x-auto">
       <div className="flex space-x-2 mb-4">
         {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
           <button
