@@ -183,15 +183,16 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
         <h2 className="text-base sm:text-lg font-bold text-red-600 mb-2">{location}</h2>
         <div className="w-full">
           <table className="w-full table-fixed border border-black text-center text-xs sm:text-sm">
-            <thead>
-              <tr className="bg-red-600 text-white text-xs sm:text-sm">
-                <th className="w-3/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">ITEM</th>
-                <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">STOCK</th>
-                <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">REQUIRED</th>
-                <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">ORDER</th>
-                <th className="w-3/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">NOTE</th>
-              </tr>
-            </thead>
+        <thead>
+          <tr className="bg-red-600 text-white">
+            <th className="w-3/12 border border-black px-1 sm:px-2 py-1 text-[9px] sm:text-xs text-center truncate overflow-hidden">ITEM</th>
+            <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[9px] sm:text-xs text-center truncate overflow-hidden">STOCK</th>
+            <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[9px] sm:text-xs text-center truncate overflow-hidden">REQUIRED</th>
+            <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[9px] sm:text-xs text-center truncate overflow-hidden">ORDER</th>
+            <th className="w-3/12 border border-black px-1 sm:px-2 py-1 text-[9px] sm:text-xs text-center truncate overflow-hidden">NOTE</th>
+          </tr>
+        </thead>
+
             <tbody>
               {filteredSection.map(item => {
                 const order = Math.max(0, item.required - item.stock);
