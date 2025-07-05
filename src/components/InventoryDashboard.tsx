@@ -1,5 +1,5 @@
 // src/components/InventoryDashboard.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { inventoryData, InventoryItem } from '../data/inventoryData';
 import { generateInventoryPdf } from '../utils/generatePdf';
 
@@ -13,9 +13,28 @@ type ItemWithNotes = InventoryItem & {
   managerNote?: string;
 };
 
+const LOCAL_STORAGE_KEY = 'ruths_inventory_data';
+const TIMESTAMP_KEY = 'ruths_inventory_timestamp';
+const EXPIRATION_MINUTES = 120; // 2 hours
+const WARNING_THRESHOLD_MINUTES = 30; // changed from 10 to 30
+
+const getStoredData = () => {
+  const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+  const timestamp = localStorage.getItem(TIMESTAMP_KEY);
+
+  if (!stored || !timestamp) return null;
+
+  const then = new Date(timestamp);
+  const now = new Date();
+  const diff = (now.getTime() - then.getTime()) / (1000 * 60); // in minutes
+
+  return diff <= EXPIRATION_MINUTES ? { data: JSON.parse(stored), age: diff } : null;
+};
+
 const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, role }) => {
+  const initial = getStoredData();
   const [items, setItems] = useState<ItemWithNotes[]>(
-    inventoryData.map(item => ({
+    initial?.data || inventoryData.map(item => ({
       ...item,
       stock: item.required,
       staffNote: '',
@@ -27,6 +46,31 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
   const [missedItemIds, setMissedItemIds] = useState<number[]>([]);
   const [managerReadyToSubmit, setManagerReadyToSubmit] = useState(false);
   const [staffReadyToSubmit, setStaffReadyToSubmit] = useState(false);
+  const warningShown = useRef(false);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(TIMESTAMP_KEY, new Date().toISOString());
+  }, [items]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const timestamp = localStorage.getItem(TIMESTAMP_KEY);
+      if (!timestamp || warningShown.current) return;
+
+      const then = new Date(timestamp);
+      const now = new Date();
+      const diff = (now.getTime() - then.getTime()) / (1000 * 60);
+      const timeRemaining = EXPIRATION_MINUTES - diff;
+
+      if (timeRemaining <= WARNING_THRESHOLD_MINUTES && timeRemaining > 0) {
+        alert(`⚠️ Session will expire in ${Math.floor(timeRemaining)} minutes. Please finish your inventory soon.`);
+        warningShown.current = true;
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleStockChange = (id: number, value: number) => {
     setItems(prev =>
