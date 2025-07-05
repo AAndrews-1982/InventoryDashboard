@@ -185,11 +185,11 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
           <table className="w-full table-fixed border border-black text-center text-xs sm:text-sm">
             <thead>
               <tr className="bg-red-600 text-white text-xs sm:text-sm">
-                <th className="w-3/12 border border-black px-1 sm:px-2 py-1">ITEM</th>
-                <th className="w-2/12 border border-black px-1 sm:px-2 py-1">STOCK</th>
-                <th className="w-2/12 border border-black px-1 sm:px-2 py-1">REQUIRED</th>
-                <th className="w-2/12 border border-black px-1 sm:px-2 py-1">ORDER</th>
-                <th className="w-3/12 border border-black px-1 sm:px-2 py-1">NOTE</th>
+                <th className="w-3/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">ITEM</th>
+                <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">STOCK</th>
+                <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">REQUIRED</th>
+                <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">ORDER</th>
+                <th className="w-3/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs">NOTE</th>
               </tr>
             </thead>
             <tbody>
