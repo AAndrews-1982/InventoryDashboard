@@ -5,12 +5,12 @@ import { generateInventoryPdf } from '../utils/generatePdf';
 
 type InventoryDashboardProps = {
   setTimestamp: (value: string) => void;
-  role: 'staff' | 'manager';
+  role: 'staff' | 'teamlead';
 };
 
 type ItemWithNotes = InventoryItem & {
   staffNote?: string;
-  managerNote?: string;
+  teamleadNote?: string;
 };
 
 const LOCAL_STORAGE_KEY = 'ruths_inventory_data';
@@ -23,7 +23,7 @@ const getDefaultItems = (): ItemWithNotes[] => {
     ...item,
     stock: item.required,
     staffNote: '',
-    managerNote: '',
+    teamleadNote: '',
   }));
 };
 
@@ -64,7 +64,7 @@ const buildInitialItems = (): ItemWithNotes[] => {
         ...item,
         stock: item.required,
         staffNote: '',
-        managerNote: '',
+        teamleadNote: '',
       };
     }
 
@@ -72,7 +72,7 @@ const buildInitialItems = (): ItemWithNotes[] => {
       ...item,
       stock: savedItem.stock ?? item.required,
       staffNote: savedItem.staffNote ?? '',
-      managerNote: savedItem.managerNote ?? '',
+      teamleadNote: savedItem.teamleadNote ?? '',
     };
   });
 };
@@ -87,7 +87,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   >('All');
   const [clickedItemIds, setClickedItemIds] = useState<number[]>([]);
   const [missedItemIds, setMissedItemIds] = useState<number[]>([]);
-  const [managerReadyToSubmit, setManagerReadyToSubmit] = useState(false);
+  const [teamleadReadyToSubmit, setteamleadReadyToSubmit] = useState(false);
   const [staffReadyToSubmit, setStaffReadyToSubmit] = useState(false);
   const warningShown = useRef(false);
 
@@ -134,7 +134,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   const handleNoteChange = (
     id: number,
     value: string,
-    field: 'staffNote' | 'managerNote'
+    field: 'staffNote' | 'teamleadNote'
   ) => {
     setItems(prev =>
       prev.map(item =>
@@ -154,81 +154,59 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     const timestamp = now.toLocaleString();
     setTimestamp(timestamp);
 
-    if (role === 'manager') {
-      const missed = items
-        .filter(item => item.stock < item.required && item.url)
-        .filter(item => !clickedItemIds.includes(item.id))
-        .map(item => item.id);
-
-      if (missed.length > 0) {
-        setMissedItemIds(missed);
-        setManagerReadyToSubmit(false);
-        alert(
-          'Some items are low or out of stock and were not reviewed. Please check highlighted rows.'
-        );
-        return;
-      }
-
-      if (!managerReadyToSubmit) {
-        setMissedItemIds([]);
-        setManagerReadyToSubmit(true);
-        alert('All items reviewed. Click Confirm again to generate report.');
-        return;
-      }
-
-      setManagerReadyToSubmit(false);
-      alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
-
-      generateInventoryPdf(
-        items.map(item => ({
-          name: item.name,
-          stock: item.stock,
-          required: item.required,
-          order: Math.max(0, item.required - item.stock),
-          note: [
-            item.staffNote ? `Staff: ${item.staffNote}` : '',
-            item.managerNote ? `Manager: ${item.managerNote}` : '',
-          ]
-            .filter(Boolean)
-            .join(' | '),
-        })),
-        role,
-        timestamp
-      );
-    } else {
-      const unchanged = items
-        .filter(item => item.stock === item.required)
-        .map(item => item.id);
-
-      if (unchanged.length > 0 && !staffReadyToSubmit) {
-        setMissedItemIds(unchanged);
+    if (role === 'staff') {
+      if (!staffReadyToSubmit) {
         setStaffReadyToSubmit(true);
-        alert('Some items were not complete. Please verify.');
+        alert('Please confirm all inventory reported is accurate.');
         return;
       }
 
-      if (staffReadyToSubmit) {
-        alert(
-          'I have confirmed all items are correct and ready to send to Manager.'
-        );
-        setStaffReadyToSubmit(false);
-      }
-
+      setStaffReadyToSubmit(false);
       setMissedItemIds([]);
-      alert(`Inventory report sent.\nTimestamp: ${timestamp}`);
-
-      generateInventoryPdf(
-        items.map(item => ({
-          name: item.name,
-          stock: item.stock,
-          required: item.required,
-          order: Math.max(0, item.required - item.stock),
-          note: item.staffNote ? `Staff: ${item.staffNote}` : '',
-        })),
-        role,
-        timestamp
-      );
+      alert('Inventory has been submitted and is ready for teamlead review.');
+      return;
     }
+
+    const missed = items
+      .filter(item => item.stock < item.required && item.url)
+      .filter(item => !clickedItemIds.includes(item.id))
+      .map(item => item.id);
+
+    if (missed.length > 0) {
+      setMissedItemIds(missed);
+      setteamleadReadyToSubmit(false);
+      alert(
+        'Some items are low or out of stock and were not reviewed. Please check highlighted rows.'
+      );
+      return;
+    }
+
+    if (!teamleadReadyToSubmit) {
+      setMissedItemIds([]);
+      setteamleadReadyToSubmit(true);
+      alert('Inventory confirmed. Click Submit Report to generate the report.');
+      return;
+    }
+
+    setteamleadReadyToSubmit(false);
+    alert(`Inventory report submitted.\nTimestamp: ${timestamp}`);
+
+    generateInventoryPdf(
+      items.map(item => ({
+        name: item.name,
+        stock: item.stock,
+        required: item.required,
+        order: Math.max(0, item.required - item.stock),
+        note: [
+          item.staffNote ? `Staff: ${item.staffNote}` : '',
+          item.teamleadNote ? `teamlead: ${item.teamleadNote}` : '',
+        ]
+          .filter(Boolean)
+          .join(' | '),
+      })),
+      role,
+      timestamp
+    );
   };
 
   const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage')[] = [
@@ -285,7 +263,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                     }
                   >
                     <td className="border border-black px-1 sm:px-2 py-1 text-left font-bold">
-                      {role === 'manager' && item.url ? (
+                      {role === 'teamlead' && item.url ? (
                         <a
                           href={item.url}
                           target="_blank"
@@ -332,7 +310,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                     </td>
 
                     <td className="border border-black px-1 sm:px-2 py-1 text-left">
-                      {role === 'manager' && item.staffNote && (
+                      {role === 'teamlead' && item.staffNote && (
                         <div className="text-gray-600 mb-1">
                           <strong>Staff:</strong> {item.staffNote}
                         </div>
@@ -355,16 +333,16 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                       ) : (
                         <input
                           type="text"
-                          value={item.managerNote}
+                          value={item.teamleadNote}
                           onChange={e =>
                             handleNoteChange(
                               item.id,
                               e.target.value,
-                              'managerNote'
+                              'teamleadNote'
                             )
                           }
                           className="w-full px-1 border border-gray-300 rounded text-xs sm:text-sm"
-                          placeholder="Manager Note"
+                          placeholder="teamlead Note"
                         />
                       )}
                     </td>
@@ -401,7 +379,13 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           onClick={handleSend}
           className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded"
         >
-          Confirm
+          {role === 'staff'
+            ? staffReadyToSubmit
+              ? 'Submit Inventory'
+              : 'Confirm'
+            : teamleadReadyToSubmit
+              ? 'Submit Report'
+              : 'Confirm'}
         </button>
       </div>
     </div>
