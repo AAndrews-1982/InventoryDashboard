@@ -150,7 +150,7 @@ Timestamp: ${timestamp}`);
     }
   };
 
-  const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage')[] = ['Refrigerator', 'Freezer', 'Dry Storage'];
+  const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage')[] = ['Refrigerator', 'Freezer', 'Dry Goods'];
 
   const renderSection = (location: typeof locations[number]) => {
     const filteredSection = items.filter(item => item.location === location);
