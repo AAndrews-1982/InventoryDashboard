@@ -49,7 +49,7 @@ export const inventoryData: InventoryItem[] = [
   { id: 14, name: 'Slice Bread', stock: 0, required: 5, location: 'Freezer' },
   { id: 15, name: 'GF Slice Bread', stock: 0, required: 5, location: 'Freezer' },
 
-  // Dry Goods
+  // Dry Storage
 
   { id: 16, name: 'Kings Hawaiian Bun', stock: 0, required: 5, location: 'Dry Storage' },
   { id: 17, name: 'GF Bun', stock: 0, required: 5, location: 'Dry Storage' },
