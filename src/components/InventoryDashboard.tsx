@@ -222,7 +222,7 @@ Timestamp: ${timestamp}`);
   return (
     <div className="w-full max-w-screen px-1 sm:px-4">
       <div className="flex flex-wrap gap-2 mb-4">
-        {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
+        {['All', 'Refrigerator', 'Freezer', 'Bread','Dry Goods'].map(loc => (
           <button
             key={loc}
             onClick={() => setFilter(loc as any)}
