@@ -38,7 +38,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({ setTimestamp, r
       managerNote: '',
     }))
   );
-  const [filter, setFilter] = useState<'Refrigerator' | 'Freezer' | 'Dry Storage' | 'All'>('All');
+  const [filter, setFilter] = useState<'Refrigerator' | 'Freezer' | 'Bread' | 'Dry Goods' | 'All'>('All');
   const [clickedItemIds, setClickedItemIds] = useState<number[]>([]);
   const [missedItemIds, setMissedItemIds] = useState<number[]>([]);
   const [managerReadyToSubmit, setManagerReadyToSubmit] = useState(false);
