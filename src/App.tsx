@@ -5,8 +5,8 @@ import InventoryDashboard from './components/InventoryDashboard';
 
 function App() {
   const [timestamp, setTimestamp] = useState('');
-  const [userRole, setUserRole] = useState<'staff' | 'manager'>(
-    () => (localStorage.getItem('userRole') as 'staff' | 'manager') || 'staff'
+  const [userRole, setUserRole] = useState<'staff' | 'teamlead'>(
+    () => (localStorage.getItem('userRole') as 'staff' | 'teamlead') || 'staff'
   );
   const [showPinModal, setShowPinModal] = useState(false);
   const [pinInput, setPinInput] = useState('');
@@ -15,7 +15,7 @@ function App() {
 
   const handlePinSubmit = () => {
     if (pinInput === correctPin) {
-      setUserRole('manager');
+      setUserRole('teamlead');
       localStorage.setItem('userRole', 'manager');
       setShowPinModal(false);
       setPinInput('');
@@ -37,7 +37,7 @@ function App() {
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <Header
         timestamp={timestamp}
-        onManagerClick={handleToggleRole}
+        onteamleadClick={handleToggleRole}
         role={userRole}
       />
       <main className="px-4 py-6">
@@ -47,7 +47,7 @@ function App() {
       {showPinModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded shadow-md w-80">
-            <h2 className="text-lg font-semibold text-red-600 mb-4">Enter Manager PIN</h2>
+            <h2 className="text-lg font-semibold text-red-600 mb-4">Enter Team Lead PIN</h2>
             <input
               type="password"
               value={pinInput}

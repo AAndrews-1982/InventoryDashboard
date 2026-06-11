@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Production Build
+dist/
+
+# Vite
+.vite/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Mac
+.DS_Store
+
+# Deployment Cache
+.cache/
