@@ -56,17 +56,15 @@ export function generateInventoryPdf(
       .join('\n\n');
   };
 
-  const tableData = items.map(item => [
-    item.name,
-    item.stock.toString(),
-    item.required.toString(),
-    item.order.toString(),
-    formatNotes(item.note || ''),
-  ]);
+const tableData = items.map(item => [
+  item.name,
+  item.stock.toString(),
+  formatNotes(item.note || ''),
+]);
 
   autoTable(doc, {
     startY: 56,
-    head: [['Item', 'Stock', 'Required', 'Order', 'Notes']],
+    head: [['Item', 'Stock', 'Notes']],
     body: tableData,
     theme: 'grid',
     styles: {
