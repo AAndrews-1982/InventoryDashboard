@@ -2,10 +2,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { inventoryData, InventoryItem } from '../data/inventoryData';
 import { generateInventoryPdf } from '../utils/generatePdf';
+import { sendInventoryEmail } from '../utils/sendInventoryEmail';
 
 type InventoryDashboardProps = {
   setTimestamp: (value: string) => void;
-  role: 'staff' | 'teamlead';
 };
 
 type ItemWithNotes = InventoryItem & {
@@ -15,8 +15,14 @@ type ItemWithNotes = InventoryItem & {
 
 const LOCAL_STORAGE_KEY = 'ruths_inventory_data';
 const TIMESTAMP_KEY = 'ruths_inventory_timestamp';
+const TEAM_LEAD_KEY = 'ruths_inventory_teamlead';
 const EXPIRATION_MINUTES = 120;
 const WARNING_THRESHOLD_MINUTES = 30;
+
+const TEAM_LEAD_PINS: Record<string, string> = {
+  Tevin: '1234',
+  Austin: '5678',
+};
 
 const getDefaultItems = (): ItemWithNotes[] => {
   return inventoryData.map(item => ({
@@ -79,16 +85,21 @@ const buildInitialItems = (): ItemWithNotes[] => {
 
 const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   setTimestamp,
-  role,
 }) => {
+  const storedTeamLead = localStorage.getItem(TEAM_LEAD_KEY);
+
   const [items, setItems] = useState<ItemWithNotes[]>(buildInitialItems);
+  const [teamLeadName, setTeamLeadName] = useState<string | null>(
+    storedTeamLead
+  );
+  const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState('');
   const [filter, setFilter] = useState<
     'Refrigerator' | 'Freezer' | 'Dry Storage' | 'All'
   >('All');
   const [clickedItemIds, setClickedItemIds] = useState<number[]>([]);
   const [missedItemIds, setMissedItemIds] = useState<number[]>([]);
-  const [teamleadReadyToSubmit, setteamleadReadyToSubmit] = useState(false);
-  const [staffReadyToSubmit, setStaffReadyToSubmit] = useState(false);
+  const [readyToSubmit, setReadyToSubmit] = useState(false);
   const warningShown = useRef(false);
 
   useEffect(() => {
@@ -123,6 +134,24 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  const handlePinSubmit = () => {
+    const matchedLead = Object.entries(TEAM_LEAD_PINS).find(
+      ([, savedPin]) => savedPin === pin
+    );
+
+    if (!matchedLead) {
+      setPinError('Invalid PIN. Please try again.');
+      return;
+    }
+
+    const leadName = matchedLead[0];
+
+    setTeamLeadName(leadName);
+    localStorage.setItem(TEAM_LEAD_KEY, leadName);
+    setPin('');
+    setPinError('');
+  };
+
   const handleStockChange = (id: number, value: number) => {
     setItems(prev =>
       prev.map(item =>
@@ -149,23 +178,13 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
+    if (!teamLeadName) return;
+
     const now = new Date();
     const timestamp = now.toLocaleString();
+
     setTimestamp(timestamp);
-
-    if (role === 'staff') {
-      if (!staffReadyToSubmit) {
-        setStaffReadyToSubmit(true);
-        alert('Please confirm all inventory reported is accurate.');
-        return;
-      }
-
-      setStaffReadyToSubmit(false);
-      setMissedItemIds([]);
-      alert('Inventory has been submitted and is ready for teamlead review.');
-      return;
-    }
 
     const missed = items
       .filter(item => item.stock < item.required && item.url)
@@ -174,24 +193,23 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
     if (missed.length > 0) {
       setMissedItemIds(missed);
-      setteamleadReadyToSubmit(false);
+      setReadyToSubmit(false);
       alert(
         'Some items are low or out of stock and were not reviewed. Please check highlighted rows.'
       );
       return;
     }
 
-    if (!teamleadReadyToSubmit) {
+    if (!readyToSubmit) {
       setMissedItemIds([]);
-      setteamleadReadyToSubmit(true);
+      setReadyToSubmit(true);
       alert('Inventory confirmed. Click Submit Report to generate the report.');
       return;
     }
 
-    setteamleadReadyToSubmit(false);
-    alert(`Inventory report submitted.\nTimestamp: ${timestamp}`);
+    setReadyToSubmit(false);
 
-    generateInventoryPdf(
+    const pdfBase64 = generateInventoryPdf(
       items.map(item => ({
         name: item.name,
         stock: item.stock,
@@ -199,14 +217,37 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         order: Math.max(0, item.required - item.stock),
         note: [
           item.staffNote ? `Staff: ${item.staffNote}` : '',
-          item.teamleadNote ? `teamlead: ${item.teamleadNote}` : '',
+          item.teamleadNote ? `Team Lead: ${item.teamleadNote}` : '',
         ]
           .filter(Boolean)
           .join(' | '),
       })),
-      role,
-      timestamp
+      'teamlead',
+      timestamp,
+      teamLeadName
     );
+
+    try {
+      const result = await sendInventoryEmail(
+        pdfBase64,
+        timestamp,
+        teamLeadName
+      );
+
+      if (result.success) {
+        alert(
+          `Inventory report submitted by ${teamLeadName}.\nTimestamp: ${timestamp}`
+        );
+      } else {
+        alert(result.message || 'Email failed to send.');
+      }
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        'The PDF was generated but the email failed to send. Please check the Google Apps Script configuration.'
+      );
+    }
   };
 
   const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage')[] = [
@@ -263,7 +304,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                     }
                   >
                     <td className="border border-black px-1 sm:px-2 py-1 text-left font-bold">
-                      {role === 'teamlead' && item.url ? (
+                      {item.url ? (
                         <a
                           href={item.url}
                           target="_blank"
@@ -279,26 +320,22 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                     </td>
 
                     <td className="border border-black px-1 sm:px-2 py-1">
-                      {role === 'staff' ? (
-                        <select
-                          value={item.stock}
-                          onChange={e =>
-                            handleStockChange(
-                              item.id,
-                              Number(e.target.value)
-                            )
-                          }
-                          className="border rounded px-1 sm:px-2 py-1"
-                        >
-                          {Array.from({ length: 11 }, (_, i) => (
-                            <option key={i} value={i}>
-                              {i}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span>{item.stock}</span>
-                      )}
+                      <select
+                        value={item.stock}
+                        onChange={e =>
+                          handleStockChange(
+                            item.id,
+                            Number(e.target.value)
+                          )
+                        }
+                        className="border rounded px-1 sm:px-2 py-1"
+                      >
+                        {Array.from({ length: 11 }, (_, i) => (
+                          <option key={i} value={i}>
+                            {i}
+                          </option>
+                        ))}
+                      </select>
                     </td>
 
                     <td className="border border-black px-1 sm:px-2 py-1">
@@ -310,41 +347,25 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                     </td>
 
                     <td className="border border-black px-1 sm:px-2 py-1 text-left">
-                      {role === 'teamlead' && item.staffNote && (
+                      {item.staffNote && (
                         <div className="text-gray-600 mb-1">
                           <strong>Staff:</strong> {item.staffNote}
                         </div>
                       )}
 
-                      {role === 'staff' ? (
-                        <input
-                          type="text"
-                          value={item.staffNote}
-                          onChange={e =>
-                            handleNoteChange(
-                              item.id,
-                              e.target.value,
-                              'staffNote'
-                            )
-                          }
-                          className="w-full px-1 border border-gray-300 rounded text-xs sm:text-sm"
-                          placeholder="Note"
-                        />
-                      ) : (
-                        <input
-                          type="text"
-                          value={item.teamleadNote}
-                          onChange={e =>
-                            handleNoteChange(
-                              item.id,
-                              e.target.value,
-                              'teamleadNote'
-                            )
-                          }
-                          className="w-full px-1 border border-gray-300 rounded text-xs sm:text-sm"
-                          placeholder="teamlead Note"
-                        />
-                      )}
+                      <input
+                        type="text"
+                        value={item.teamleadNote}
+                        onChange={e =>
+                          handleNoteChange(
+                            item.id,
+                            e.target.value,
+                            'teamleadNote'
+                          )
+                        }
+                        className="w-full px-1 border border-gray-300 rounded text-xs sm:text-sm"
+                        placeholder="Team Lead Note"
+                      />
                     </td>
                   </tr>
                 );
@@ -356,8 +377,52 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     );
   };
 
+  if (!teamLeadName) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+        <div className="bg-white border border-black rounded-lg p-6 w-full max-w-sm text-center">
+          <h1 className="text-xl font-bold mb-2">
+            Ruth&apos;s Chicken Inventory
+          </h1>
+
+          <p className="text-sm mb-4">
+            Enter Team Lead PIN to continue
+          </p>
+
+          <input
+            type="password"
+            value={pin}
+            onChange={e => setPin(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handlePinSubmit();
+            }}
+            className="w-full border border-black rounded px-3 py-2 text-center mb-3"
+            placeholder="Enter PIN"
+          />
+
+          {pinError && (
+            <p className="text-red-600 text-sm mb-3">{pinError}</p>
+          )}
+
+          <button
+            onClick={handlePinSubmit}
+            className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-semibold"
+          >
+            Unlock Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-screen px-1 sm:px-4">
+     <div className="mb-4">
+  <p className="text-sm font-bold">
+    Team Lead: {teamLeadName}
+  </p>
+</div>
+
       <div className="flex flex-wrap gap-2 mb-4">
         {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
           <button
@@ -379,13 +444,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           onClick={handleSend}
           className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded"
         >
-          {role === 'staff'
-            ? staffReadyToSubmit
-              ? 'Submit Inventory'
-              : 'Confirm'
-            : teamleadReadyToSubmit
-              ? 'Submit Report'
-              : 'Confirm'}
+          {readyToSubmit ? 'Submit Report' : 'Confirm'}
         </button>
       </div>
     </div>

@@ -12,41 +12,50 @@ type Item = {
 
 export function generateInventoryPdf(
   items: Item[],
-  role: 'staff' | 'manager',
-  timestamp: string
+  role: 'teamlead',
+  timestamp: string,
+  teamLeadName: string
 ) {
   const doc = new jsPDF();
 
   // Header
   doc.setFontSize(18);
   doc.setTextColor(200, 0, 0);
-  doc.text('Inventory Report', 105, 20, { align: 'center' });
+  doc.text('Ruth’s Chicken Inventory Report', 105, 20, {
+    align: 'center',
+  });
 
   // Meta Info
   doc.setFontSize(11);
   doc.setTextColor(40, 40, 40);
-  doc.text(`View: ${role === 'manager' ? 'Manager' : 'Team Member'}`, 14, 30);
-  doc.text(`Timestamp: ${timestamp}`, 14, 36);
+  doc.text('View: Team Lead', 14, 30);
+  doc.text(`Submitted By: ${teamLeadName}`, 14, 36);
+  doc.text(`Timestamp: ${timestamp}`, 14, 42);
 
-  if (role === 'manager') {
-    doc.setFontSize(12);
-    doc.setTextColor(0, 102, 0);
-    doc.text('✔ Manager’s Confirmation: All items reviewed and approved.', 14, 44);
-  }
+  // Confirmation
+  doc.setFontSize(12);
+  doc.setTextColor(0, 102, 0);
+  doc.text(
+    'Team Lead Confirmation: All items reviewed and approved.',
+    14,
+    50
+  );
 
-  // Table body formatting for notes
   const formatNotes = (raw: string) => {
     const parts = raw.split(' | ').map(note => note.trim());
     const staffNote = parts.find(n => n.startsWith('Staff:'));
-    const managerNote = parts.find(n => n.startsWith('Manager:'));
+    const teamLeadNote = parts.find(n => n.startsWith('Team Lead:'));
 
     return [
       staffNote ? `Staff Notes:\n${staffNote.replace('Staff: ', '')}` : '',
-      managerNote ? `Manager Note:\n${managerNote.replace('Manager: ', '')}` : '',
-    ].filter(Boolean).join('\n\n');
+      teamLeadNote
+        ? `Team Lead Note:\n${teamLeadNote.replace('Team Lead: ', '')}`
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n\n');
   };
 
-  // Table Data
   const tableData = items.map(item => [
     item.name,
     item.stock.toString(),
@@ -56,7 +65,7 @@ export function generateInventoryPdf(
   ]);
 
   autoTable(doc, {
-    startY: role === 'manager' ? 50 : 42,
+    startY: 56,
     head: [['Item', 'Stock', 'Required', 'Order', 'Notes']],
     body: tableData,
     theme: 'grid',
@@ -78,6 +87,17 @@ export function generateInventoryPdf(
     },
   });
 
-  const fileName = `InventoryReport-${timestamp.replace(/[/:]/g, '-')}.pdf`;
+  const cleanTimestamp = timestamp.replace(/[/:]/g, '-');
+  const cleanTeamLeadName = teamLeadName.replace(/\s+/g, '-');
+
+  const fileName =
+    `InventoryReport-${cleanTeamLeadName}-${cleanTimestamp}.pdf`;
+
+  // Download locally as a backup
   doc.save(fileName);
+
+  // Return Base64 for email webhook
+  const pdfBase64 = doc.output('datauristring').split(',')[1];
+
+  return pdfBase64;
 }
