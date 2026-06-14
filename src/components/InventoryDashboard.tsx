@@ -13,9 +13,7 @@ type ItemWithNotes = InventoryItem & {
   teamleadNote?: string;
 };
 
-const LOCAL_STORAGE_KEY = 'ruths_inventory_data';
-const TIMESTAMP_KEY = 'ruths_inventory_timestamp';
-const TEAM_LEAD_KEY = 'ruths_inventory_teamlead';
+const ACTIVE_TEAM_LEAD_KEY = 'ruths_inventory_active_teamlead';
 const EXPIRATION_MINUTES = 120;
 const WARNING_THRESHOLD_MINUTES = 30;
 
@@ -23,6 +21,12 @@ const TEAM_LEAD_PINS: Record<string, string> = {
   Tevin: '1234',
   Austin: '5678',
 };
+
+const getStorageKeys = (teamLeadName: string) => ({
+  dataKey: `ruths_inventory_data_${teamLeadName}`,
+  timestampKey: `ruths_inventory_timestamp_${teamLeadName}`,
+  clickedKey: `ruths_inventory_clicked_${teamLeadName}`,
+});
 
 const getDefaultItems = (): ItemWithNotes[] => {
   return inventoryData.map(item => ({
@@ -33,9 +37,12 @@ const getDefaultItems = (): ItemWithNotes[] => {
   }));
 };
 
-const getStoredData = () => {
-  const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-  const timestamp = localStorage.getItem(TIMESTAMP_KEY);
+const getStoredData = (teamLeadName: string | null) => {
+  if (!teamLeadName) return null;
+
+  const { dataKey, timestampKey } = getStorageKeys(teamLeadName);
+  const stored = localStorage.getItem(dataKey);
+  const timestamp = localStorage.getItem(timestampKey);
 
   if (!stored || !timestamp) return null;
 
@@ -55,8 +62,25 @@ const getStoredData = () => {
   }
 };
 
-const buildInitialItems = (): ItemWithNotes[] => {
-  const initial = getStoredData();
+const getStoredClickedItems = (teamLeadName: string | null): number[] => {
+  if (!teamLeadName) return [];
+
+  const { clickedKey } = getStorageKeys(teamLeadName);
+  const stored = localStorage.getItem(clickedKey);
+
+  if (!stored) return [];
+
+  try {
+    return JSON.parse(stored) as number[];
+  } catch {
+    return [];
+  }
+};
+
+const buildInitialItems = (
+  teamLeadName: string | null
+): ItemWithNotes[] => {
+  const initial = getStoredData(teamLeadName);
 
   if (!initial?.data) {
     return getDefaultItems();
@@ -86,32 +110,51 @@ const buildInitialItems = (): ItemWithNotes[] => {
 const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   setTimestamp,
 }) => {
-  const storedTeamLead = localStorage.getItem(TEAM_LEAD_KEY);
+  const storedTeamLead = sessionStorage.getItem(ACTIVE_TEAM_LEAD_KEY);
 
-  const [items, setItems] = useState<ItemWithNotes[]>(buildInitialItems);
   const [teamLeadName, setTeamLeadName] = useState<string | null>(
     storedTeamLead
+  );
+  const [items, setItems] = useState<ItemWithNotes[]>(
+    () => buildInitialItems(storedTeamLead)
   );
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [filter, setFilter] = useState<
     'Refrigerator' | 'Freezer' | 'Dry Storage' | 'All'
   >('All');
-  const [clickedItemIds, setClickedItemIds] = useState<number[]>([]);
+  const [clickedItemIds, setClickedItemIds] = useState<number[]>(
+    () => getStoredClickedItems(storedTeamLead)
+  );
   const [missedItemIds, setMissedItemIds] = useState<number[]>([]);
   const [readyToSubmit, setReadyToSubmit] = useState(false);
   const warningShown = useRef(false);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
-    localStorage.setItem(TIMESTAMP_KEY, new Date().toISOString());
-  }, [items]);
+    if (!teamLeadName) return;
+
+    const { dataKey, timestampKey } = getStorageKeys(teamLeadName);
+
+    localStorage.setItem(dataKey, JSON.stringify(items));
+    localStorage.setItem(timestampKey, new Date().toISOString());
+  }, [items, teamLeadName]);
+
+  useEffect(() => {
+    if (!teamLeadName) return;
+
+    const { clickedKey } = getStorageKeys(teamLeadName);
+
+    localStorage.setItem(clickedKey, JSON.stringify(clickedItemIds));
+  }, [clickedItemIds, teamLeadName]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const timestamp = localStorage.getItem(TIMESTAMP_KEY);
+      if (!teamLeadName || warningShown.current) return;
 
-      if (!timestamp || warningShown.current) return;
+      const { timestampKey } = getStorageKeys(teamLeadName);
+      const timestamp = localStorage.getItem(timestampKey);
+
+      if (!timestamp) return;
 
       const then = new Date(timestamp);
       const now = new Date();
@@ -132,7 +175,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     }, 60000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [teamLeadName]);
 
   const handlePinSubmit = () => {
     const matchedLead = Object.entries(TEAM_LEAD_PINS).find(
@@ -147,9 +190,14 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     const leadName = matchedLead[0];
 
     setTeamLeadName(leadName);
-    localStorage.setItem(TEAM_LEAD_KEY, leadName);
+    sessionStorage.setItem(ACTIVE_TEAM_LEAD_KEY, leadName);
+    setItems(buildInitialItems(leadName));
+    setClickedItemIds(getStoredClickedItems(leadName));
+    setMissedItemIds([]);
+    setReadyToSubmit(false);
     setPin('');
     setPinError('');
+    warningShown.current = false;
   };
 
   const handleStockChange = (id: number, value: number) => {
