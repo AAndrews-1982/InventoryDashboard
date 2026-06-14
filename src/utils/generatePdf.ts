@@ -94,7 +94,7 @@ export function generateInventoryPdf(
     `InventoryReport-${cleanTeamLeadName}-${cleanTimestamp}.pdf`;
 
   // Download locally as a backup
-  doc.save(fileName);
+  // doc.save(fileName);
 
   // Return Base64 for email webhook
   const pdfBase64 = doc.output('datauristring').split(',')[1];
