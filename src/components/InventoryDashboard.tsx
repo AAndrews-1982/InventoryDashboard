@@ -236,18 +236,19 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     setTimestamp(timestamp);
 
     const missed = items
-      .filter(item => item.stock < item.required && item.url)
-      .filter(item => !clickedItemIds.includes(item.id))
-      .map(item => item.id);
+  .filter(item => item.stock === 0)
+  .map(item => item.id);
 
-    if (missed.length > 0) {
-      setMissedItemIds(missed);
-      setReadyToSubmit(false);
-      alert(
-        'Some items are low or out of stock and were not reviewed. Please check highlighted rows.'
-      );
-      return;
-    }
+if (missed.length > 0 && !readyToSubmit) {
+  setMissedItemIds(missed);
+  setReadyToSubmit(false);
+
+  alert(
+    'Confirm missing items. Some items are still marked as 0. Please review the highlighted rows, then click Confirm again if they are correct.'
+  );
+
+  return;
+}
 
     if (!readyToSubmit) {
       setMissedItemIds([]);
