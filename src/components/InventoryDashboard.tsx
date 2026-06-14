@@ -6,6 +6,8 @@ import { sendInventoryEmail } from '../utils/sendInventoryEmail';
 
 type InventoryDashboardProps = {
   setTimestamp: (value: string) => void;
+  teamLeadName: string | null;
+  setTeamLeadName: (value: string | null) => void;
 };
 
 type ItemWithNotes = InventoryItem & {
@@ -23,15 +25,15 @@ const TEAM_LEAD_PINS: Record<string, string> = {
 };
 
 const getStorageKeys = (teamLeadName: string) => ({
-  dataKey: `ruths_inventory_data_${teamLeadName}`,
-  timestampKey: `ruths_inventory_timestamp_${teamLeadName}`,
-  clickedKey: `ruths_inventory_clicked_${teamLeadName}`,
+  dataKey: `ruths_inventory_data_v3_${teamLeadName}`,
+  timestampKey: `ruths_inventory_timestamp_v3_${teamLeadName}`,
+  clickedKey: `ruths_inventory_clicked_v3_${teamLeadName}`,
 });
 
 const getDefaultItems = (): ItemWithNotes[] => {
   return inventoryData.map(item => ({
     ...item,
-    stock: item.required,
+    stock: 0,
     staffNote: '',
     teamleadNote: '',
   }));
@@ -92,7 +94,7 @@ const buildInitialItems = (
     if (!savedItem) {
       return {
         ...item,
-        stock: item.required,
+        stock: 0,
         staffNote: '',
         teamleadNote: '',
       };
@@ -100,7 +102,7 @@ const buildInitialItems = (
 
     return {
       ...item,
-      stock: savedItem.stock ?? item.required,
+      stock: savedItem.stock ?? 0,
       staffNote: savedItem.staffNote ?? '',
       teamleadNote: savedItem.teamleadNote ?? '',
     };
@@ -109,12 +111,12 @@ const buildInitialItems = (
 
 const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   setTimestamp,
+  teamLeadName,
+  setTeamLeadName,
 }) => {
   const storedTeamLead = sessionStorage.getItem(ACTIVE_TEAM_LEAD_KEY);
 
-  const [teamLeadName, setTeamLeadName] = useState<string | null>(
-    storedTeamLead
-  );
+
   const [items, setItems] = useState<ItemWithNotes[]>(
     () => buildInitialItems(storedTeamLead)
   );

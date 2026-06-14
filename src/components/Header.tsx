@@ -3,17 +3,16 @@ import React from 'react';
 
 type HeaderProps = {
   timestamp: string;
+  teamLeadName: string | null;
+  onLogout: () => void;
 };
 
-const Header: React.FC<HeaderProps> = ({ timestamp }) => {
-  const teamLeadName = sessionStorage.getItem(
-    'ruths_inventory_active_teamlead'
-  );
+const Header: React.FC<HeaderProps> = ({
+  timestamp,
+  teamLeadName,
+  onLogout,
+}) => {
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('ruths_inventory_active_teamlead');
-    window.location.reload();
-  };
 
   return (
     <header className="w-full h-28 md:h-40 bg-white border-b border-gray-200 px-4 py-3 relative z-10">
@@ -45,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({ timestamp }) => {
             </span>
 
             <button
-              onClick={handleLogout}
+              onClick={onLogout}
               className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded"
             >
               Log Out
@@ -75,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({ timestamp }) => {
 
           {teamLeadName && (
             <button
-              onClick={handleLogout}
+              onClick={onLogout}
               className="mt-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1 rounded"
             >
               Log Out
