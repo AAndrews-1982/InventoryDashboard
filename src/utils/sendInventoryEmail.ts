@@ -12,6 +12,11 @@ export const sendInventoryEmail = async (
   const cleanTimestamp = timestamp.replace(/[/:]/g, '-');
   const cleanTeamLeadName = teamLeadName.replace(/\s+/g, '-');
 
+  console.log('Sending Report:', {
+  timestamp,
+  teamLeadName,
+});
+
   const response = await fetch(WEBHOOK_URL, {
     method: 'POST',
     headers: {
@@ -26,6 +31,7 @@ export const sendInventoryEmail = async (
   });
 
   const result = await response.json();
+  console.log('Webhook Response:', result);
 
   if (!result.success) {
     throw new Error(
