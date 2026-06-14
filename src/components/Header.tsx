@@ -12,40 +12,38 @@ const Header: React.FC<HeaderProps> = ({
   teamLeadName,
   onLogout,
 }) => {
-
-
   return (
-    <header className="w-full h-28 md:h-40 bg-white border-b border-gray-200 px-4 py-3 relative z-10">
+    <header className="sticky top-0 z-20 w-full border-b border-gray-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
       {/* Desktop Layout */}
-      <div className="hidden md:flex items-center justify-center h-full relative">
+      <div className="hidden h-28 md:flex items-center justify-center relative">
         {/* Left: Logo */}
         <img
           src={`${import.meta.env.BASE_URL}Ruths-Logo-red.png`}
           alt="Ruth's Chicken Logo"
-          className="absolute left-10 h-28 w-auto object-contain"
+          className="absolute left-8 h-24 w-auto object-contain"
         />
 
         {/* Center: Title + Timestamp */}
         <div className="text-center">
-          <h1 className="text-5xl font-bold text-red-600">
+          <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-gray-900">
             Inventory Dashboard
           </h1>
 
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="mt-1 text-sm font-medium text-gray-500">
             {timestamp ? `Last updated: ${timestamp}` : 'Last updated: —'}
           </p>
         </div>
 
         {/* Right: Logout */}
         {teamLeadName && (
-          <div className="absolute right-10 flex items-center gap-3">
-            <span className="font-semibold text-gray-700">
+          <div className="absolute right-8 flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-2 shadow-sm">
+            <span className="text-sm font-semibold text-gray-700">
               {teamLeadName}
             </span>
 
             <button
               onClick={onLogout}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded"
+              className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98]"
             >
               Log Out
             </button>
@@ -54,33 +52,34 @@ const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Mobile Layout */}
-      <div className="flex md:hidden items-center justify-center h-24 px-2 mb-4">
-        {/* Left: Logo */}
+      <div className="md:hidden relative h-20">
+        {/* Logo */}
         <img
           src={`${import.meta.env.BASE_URL}Ruths-Logo-red.png`}
           alt="Ruth's Chicken Logo"
-          className="h-20 w-auto object-contain mr-3"
+          className="absolute left-0 top-2 h-12 w-auto object-contain"
         />
 
-        {/* Center: Title + Timestamp */}
-        <div className="flex flex-col justify-center items-center text-center h-full px-2">
-          <h1 className="text-xl font-bold text-red-600 leading-tight">
+        {/* Centered Title */}
+        <div className="flex h-full flex-col items-center justify-center text-center px-16">
+          <h1 className="text-lg font-bold leading-tight tracking-tight text-gray-900">
             Inventory Dashboard
           </h1>
 
-          <p className="text-xs text-gray-500">
+          <p className="mt-0.5 text-[10px] font-medium text-gray-500">
             {timestamp ? `Last updated: ${timestamp}` : 'Last updated: —'}
           </p>
-
-          {teamLeadName && (
-            <button
-              onClick={onLogout}
-              className="mt-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1 rounded"
-            >
-              Log Out
-            </button>
-          )}
         </div>
+
+        {/* Logout Button */}
+        {teamLeadName && (
+          <button
+            onClick={onLogout}
+            className="absolute right-0 top-3 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98]"
+          >
+            Log Out
+          </button>
+        )}
       </div>
     </header>
   );

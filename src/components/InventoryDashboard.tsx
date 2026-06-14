@@ -116,7 +116,6 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 }) => {
   const storedTeamLead = sessionStorage.getItem(ACTIVE_TEAM_LEAD_KEY);
 
-
   const [items, setItems] = useState<ItemWithNotes[]>(
     () => buildInitialItems(storedTeamLead)
   );
@@ -263,8 +262,6 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
       items.map(item => ({
         name: item.name,
         stock: item.stock,
-        required: item.required,
-        order: Math.max(0, item.required - item.stock),
         note: item.teamleadNote
           ? `Team Lead: ${item.teamleadNote}`
           : '',
@@ -309,30 +306,30 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     if (filter !== 'All' && filter !== location) return null;
 
     return (
-      <div key={location} className="mb-6">
-        <h2 className="text-base sm:text-lg font-bold text-red-600 mb-2">
+      <section key={location} className="mb-6">
+        <h2 className="mb-3 text-base sm:text-lg font-semibold text-gray-800">
           {location}
         </h2>
 
-        <div className="w-full">
-          <table className="w-full table-auto border border-black text-center text-xs sm:text-sm">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <table className="w-full text-left text-xs sm:text-sm">
             <thead>
-              <tr className="bg-red-600 text-white">
-                <th className="w-5/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
-                  ITEM
+              <tr className="bg-gray-50 text-[10px] sm:text-xs uppercase tracking-wide text-gray-500">
+                <th className="w-5/12 px-3 py-3 font-semibold">
+                  Item
                 </th>
 
-                <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
-                  STOCK
+                <th className="w-2/12 px-3 py-3 text-center font-semibold">
+                  Stock
                 </th>
 
-                <th className="w-5/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
-                  TEAM LEAD NOTES
+                <th className="w-5/12 px-3 py-3 font-semibold">
+                  Team Lead Notes
                 </th>
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="divide-y divide-gray-100">
               {filteredSection.map(item => {
                 const isMissed = missedItemIds.includes(item.id);
 
@@ -341,18 +338,18 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                     key={item.id}
                     className={
                       isMissed
-                        ? 'bg-yellow-100 border-2 border-red-500'
-                        : ''
+                        ? 'bg-red-50 ring-1 ring-red-200'
+                        : 'bg-white hover:bg-gray-50'
                     }
                   >
-                    <td className="border border-black px-1 sm:px-2 py-1 text-left font-bold">
+                    <td className="px-3 py-3 font-semibold text-gray-900">
                       {item.url ? (
                         <a
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={() => handleItemClick(item.id)}
-                          className="font-bold text-black"
+                          className="text-gray-900 underline-offset-2 hover:underline"
                         >
                           {item.name}
                         </a>
@@ -361,7 +358,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                       )}
                     </td>
 
-                    <td className="border border-black px-1 sm:px-2 py-1 text-center">
+                    <td className="px-3 py-3 text-center">
                       <select
                         value={item.stock}
                         onChange={e =>
@@ -370,7 +367,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                             Number(e.target.value)
                           )
                         }
-                        className="border rounded px-1 sm:px-2 py-1"
+                        className="w-16 rounded-xl border border-gray-300 bg-white px-2 py-2 text-center font-semibold text-gray-800 shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
                       >
                         {Array.from({ length: 11 }, (_, i) => (
                           <option key={i} value={i}>
@@ -380,7 +377,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                       </select>
                     </td>
 
-                    <td className="border border-black px-1 sm:px-2 py-1 text-left">
+                    <td className="px-3 py-3">
                       <input
                         type="text"
                         value={item.teamleadNote}
@@ -391,8 +388,8 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                             'teamleadNote'
                           )
                         }
-                        className="w-full px-1 border border-gray-300 rounded text-xs sm:text-sm"
-                        placeholder="Team Lead Note"
+                        className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-xs sm:text-sm text-gray-800 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                        placeholder="Add note"
                       />
                     </td>
                   </tr>
@@ -401,19 +398,19 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
     );
   };
 
   if (!teamLeadName) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-        <div className="bg-white border border-black rounded-lg p-6 w-full max-w-sm text-center">
-          <h1 className="text-xl font-bold mb-2">
+      <div className="flex min-h-[70vh] items-center justify-center px-4">
+        <div className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+          <h1 className="mb-2 text-xl font-bold text-gray-900">
             Ruth&apos;s Chicken Inventory
           </h1>
 
-          <p className="text-sm mb-4">
+          <p className="mb-5 text-sm text-gray-500">
             Enter Team Lead PIN to continue
           </p>
 
@@ -424,17 +421,19 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
             onKeyDown={e => {
               if (e.key === 'Enter') handlePinSubmit();
             }}
-            className="w-full border border-black rounded px-3 py-2 text-center mb-3"
-            placeholder="Enter PIN"
+            className="mb-3 w-full rounded-xl border border-gray-300 px-4 py-3 text-center text-lg font-semibold tracking-widest outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
+            placeholder="PIN"
           />
 
           {pinError && (
-            <p className="text-red-600 text-sm mb-3">{pinError}</p>
+            <p className="mb-3 text-sm font-medium text-red-600">
+              {pinError}
+            </p>
           )}
 
           <button
             onClick={handlePinSubmit}
-            className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-semibold"
+            className="w-full rounded-xl bg-red-600 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98]"
           >
             Unlock Dashboard
           </button>
@@ -444,20 +443,23 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   }
 
   return (
-    <div className="w-full max-w-screen px-1 sm:px-4">
-      <div className="mb-4">
-        <p className="text-sm font-bold">
-          Team Lead: {teamLeadName}
+    <div className="w-full px-1 sm:px-4">
+      <div className="mb-4 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+        <p className="text-sm font-semibold text-gray-800">
+          Team Lead:{' '}
+          <span className="text-gray-500">{teamLeadName}</span>
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="mb-5 flex flex-wrap gap-2">
         {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
           <button
             key={loc}
             onClick={() => setFilter(loc as any)}
-            className={`bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ${
-              filter === loc ? 'ring-2 ring-red-800' : ''
+            className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition active:scale-[0.97] ${
+              filter === loc
+                ? 'bg-red-600 text-white hover:bg-red-700'
+                : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
             }`}
           >
             {loc}
@@ -467,10 +469,10 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
       {locations.map(loc => renderSection(loc))}
 
-      <div className="mt-6">
+      <div className="sticky bottom-0 mt-6 border-t border-gray-200 bg-gray-50/90 py-4 backdrop-blur">
         <button
           onClick={handleSend}
-          className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded"
+          className="w-full sm:w-auto rounded-xl bg-red-600 px-6 py-3 font-bold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98]"
         >
           {readyToSubmit ? 'Submit Report' : 'Confirm'}
         </button>
