@@ -81,8 +81,8 @@ const tableData = items.map(item => [
       fillColor: [245, 245, 245],
     },
     columnStyles: {
-      4: { cellWidth: 80 },
-    },
+      2: { cellWidth: 110 },
+},
   });
 
  const arrayBuffer = doc.output('arraybuffer');
