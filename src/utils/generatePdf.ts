@@ -87,17 +87,16 @@ export function generateInventoryPdf(
     },
   });
 
-  const cleanTimestamp = timestamp.replace(/[/:]/g, '-');
-  const cleanTeamLeadName = teamLeadName.replace(/\s+/g, '-');
+ const arrayBuffer = doc.output('arraybuffer');
+  const uint8Array = new Uint8Array(arrayBuffer);
 
-  const fileName =
-    `InventoryReport-${cleanTeamLeadName}-${cleanTimestamp}.pdf`;
+  let binary = '';
 
-  // Download locally as a backup
-  // doc.save(fileName);
+  uint8Array.forEach(byte => {
+    binary += String.fromCharCode(byte);
+  });
 
-  // Return Base64 for email webhook
-  const pdfBase64 = doc.output('datauristring').split(',')[1];
+  const pdfBase64 = btoa(binary);
 
   return pdfBase64;
 }
