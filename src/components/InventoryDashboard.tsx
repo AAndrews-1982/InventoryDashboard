@@ -215,12 +215,9 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         stock: item.stock,
         required: item.required,
         order: Math.max(0, item.required - item.stock),
-        note: [
-          item.staffNote ? `Staff: ${item.staffNote}` : '',
-          item.teamleadNote ? `Team Lead: ${item.teamleadNote}` : '',
-        ]
-          .filter(Boolean)
-          .join(' | '),
+        note: item.teamleadNote
+          ? `Team Lead: ${item.teamleadNote}`
+          : '',
       })),
       'teamlead',
       timestamp,
@@ -271,27 +268,22 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
           <table className="w-full table-auto border border-black text-center text-xs sm:text-sm">
             <thead>
               <tr className="bg-red-600 text-white">
-                <th className="w-3/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
+                <th className="w-5/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
                   ITEM
                 </th>
+
                 <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
                   STOCK
                 </th>
-                <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
-                  REQUIRED
-                </th>
-                <th className="w-2/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
-                  ORDER
-                </th>
-                <th className="w-3/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
-                  NOTE
+
+                <th className="w-5/12 border border-black px-1 sm:px-2 py-1 text-[10px] sm:text-xs text-center">
+                  TEAM LEAD NOTES
                 </th>
               </tr>
             </thead>
 
             <tbody>
               {filteredSection.map(item => {
-                const order = Math.max(0, item.required - item.stock);
                 const isMissed = missedItemIds.includes(item.id);
 
                 return (
@@ -319,7 +311,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                       )}
                     </td>
 
-                    <td className="border border-black px-1 sm:px-2 py-1">
+                    <td className="border border-black px-1 sm:px-2 py-1 text-center">
                       <select
                         value={item.stock}
                         onChange={e =>
@@ -338,21 +330,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                       </select>
                     </td>
 
-                    <td className="border border-black px-1 sm:px-2 py-1">
-                      {item.required}
-                    </td>
-
-                    <td className="border border-black px-1 sm:px-2 py-1">
-                      {order}
-                    </td>
-
                     <td className="border border-black px-1 sm:px-2 py-1 text-left">
-                      {item.staffNote && (
-                        <div className="text-gray-600 mb-1">
-                          <strong>Staff:</strong> {item.staffNote}
-                        </div>
-                      )}
-
                       <input
                         type="text"
                         value={item.teamleadNote}
@@ -417,11 +395,11 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
   return (
     <div className="w-full max-w-screen px-1 sm:px-4">
-     <div className="mb-4">
-  <p className="text-sm font-bold">
-    Team Lead: {teamLeadName}
-  </p>
-</div>
+      <div className="mb-4">
+        <p className="text-sm font-bold">
+          Team Lead: {teamLeadName}
+        </p>
+      </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
         {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
