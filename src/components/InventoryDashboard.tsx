@@ -280,7 +280,14 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     if (!teamLeadName) return;
 
     const now = new Date();
-    const timestamp = now.toLocaleString();
+
+    const timestamp = now.toLocaleString([], {
+      month: 'numeric',
+      day: 'numeric',
+      year: '2-digit',
+      hour: 'numeric',
+      minute: '2-digit',
+    });
 
     setTimestamp(timestamp);
 
