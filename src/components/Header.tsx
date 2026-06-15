@@ -66,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({
             Inventory Dashboard
           </h1>
 
-          <p className="mt-0.5 text-[6px] font-medium text-gray-500">
+          <p className="mt-0.5 text-[4px] font-medium text-gray-500">
             {timestamp ? `Last updated: ${timestamp}` : 'Last updated: —'}
           </p>
         </div>
