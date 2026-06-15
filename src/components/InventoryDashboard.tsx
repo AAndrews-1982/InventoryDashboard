@@ -109,6 +109,24 @@ const buildInitialItems = (
   });
 };
 
+const getWholeCases = (stock: number) => {
+  return Math.floor(stock);
+};
+
+const getPartialCase = (stock: number) => {
+  const decimal = Number((stock - Math.floor(stock)).toFixed(2));
+
+  if (decimal === 0.25) return '0.25';
+  if (decimal === 0.5) return '0.5';
+  if (decimal === 0.75) return '0.75';
+
+  return '0';
+};
+
+const buildStockValue = (whole: number, partial: string) => {
+  return whole + Number(partial);
+};
+
 const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   setTimestamp,
   teamLeadName,
@@ -207,6 +225,12 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         item.id === id ? { ...item, stock: value } : item
       )
     );
+
+    setMissedItemIds(prev =>
+      value > 0 ? prev.filter(itemId => itemId !== id) : prev
+    );
+
+    setReadyToSubmit(false);
   };
 
   const handleNoteChange = (
@@ -236,19 +260,19 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     setTimestamp(timestamp);
 
     const missed = items
-  .filter(item => item.stock === 0)
-  .map(item => item.id);
+      .filter(item => item.stock === 0)
+      .map(item => item.id);
 
-if (missed.length > 0 && !readyToSubmit) {
-  setMissedItemIds(missed);
-  setReadyToSubmit(false);
+    if (missed.length > 0 && !readyToSubmit) {
+      setMissedItemIds(missed);
+      setReadyToSubmit(false);
 
-  alert(
-    'Confirm missing items. Some items are still marked as 0. Please review the highlighted rows, then click Confirm again if they are correct.'
-  );
+      alert(
+        'Confirm missing items. Some items are still marked as 0. Please review the highlighted rows, then click Confirm again if they are correct.'
+      );
 
-  return;
-}
+      return;
+    }
 
     if (!readyToSubmit) {
       setMissedItemIds([]);
@@ -320,11 +344,11 @@ if (missed.length > 0 && !readyToSubmit) {
                   Item
                 </th>
 
-                <th className="w-2/12 px-3 py-3 text-center font-semibold">
+                <th className="w-3/12 px-3 py-3 text-center font-semibold">
                   Stock
                 </th>
 
-                <th className="w-5/12 px-3 py-3 font-semibold">
+                <th className="w-4/12 px-3 py-3 font-semibold">
                   Team Lead Notes
                 </th>
               </tr>
@@ -339,7 +363,7 @@ if (missed.length > 0 && !readyToSubmit) {
                     key={item.id}
                     className={
                       isMissed
-                        ? 'bg-red-50 ring-1 ring-red-200'
+                        ? 'bg-amber-50 ring-2 ring-amber-300'
                         : 'bg-white hover:bg-gray-50'
                     }
                   >
@@ -360,22 +384,46 @@ if (missed.length > 0 && !readyToSubmit) {
                     </td>
 
                     <td className="px-3 py-3 text-center">
-                      <select
-                        value={item.stock}
-                        onChange={e =>
-                          handleStockChange(
-                            item.id,
-                            Number(e.target.value)
-                          )
-                        }
-                        className="w-16 rounded-xl border border-gray-300 bg-white px-2 py-2 text-center font-semibold text-gray-800 shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                      >
-                        {Array.from({ length: 11 }, (_, i) => (
-                          <option key={i} value={i}>
-                            {i}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex flex-col items-center gap-1 sm:flex-row sm:justify-center sm:gap-2">
+                        <select
+                          value={getWholeCases(item.stock)}
+                          onChange={e =>
+                            handleStockChange(
+                              item.id,
+                              buildStockValue(
+                                Number(e.target.value),
+                                getPartialCase(item.stock)
+                              )
+                            )
+                          }
+                          className="w-20 rounded-xl border border-gray-300 bg-white px-2 py-2 text-center text-xs font-semibold text-gray-800 shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100 sm:w-16 sm:text-sm"
+                        >
+                          {Array.from({ length: 11 }, (_, i) => (
+                            <option key={i} value={i}>
+                              {i} Case
+                            </option>
+                          ))}
+                        </select>
+
+                        <select
+                          value={getPartialCase(item.stock)}
+                          onChange={e =>
+                            handleStockChange(
+                              item.id,
+                              buildStockValue(
+                                getWholeCases(item.stock),
+                                e.target.value
+                              )
+                            )
+                          }
+                          className="w-20 rounded-xl border border-gray-300 bg-white px-2 py-2 text-center text-xs font-semibold text-gray-800 shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100 sm:text-sm"
+                        >
+                          <option value="0">—</option>
+                          <option value="0.25">1/4</option>
+                          <option value="0.5">1/2</option>
+                          <option value="0.75">3/4</option>
+                        </select>
+                      </div>
                     </td>
 
                     <td className="px-3 py-3">
