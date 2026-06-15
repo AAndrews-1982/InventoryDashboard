@@ -13,7 +13,7 @@ const Header: React.FC<HeaderProps> = ({
   onLogout,
 }) => {
   return (
-    <header className="sticky top-0 z-20 w-full border-b border-gray-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
+    <header className="sticky top-0 z-30 w-full border-b border-gray-200 bg-white px-4 py-3 shadow-md">
       {/* Desktop Layout */}
       <div className="hidden h-28 md:flex items-center justify-center relative">
         {/* Left: Logo */}

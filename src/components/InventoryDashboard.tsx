@@ -539,28 +539,32 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
   return (
     <div className="w-full px-1 sm:px-4">
-      <div className="mb-4 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
-        <p className="text-sm font-semibold text-gray-800">
-          Team Lead:{' '}
-          <span className="text-gray-500">{teamLeadName}</span>
-        </p>
+      <div className="fixed left-0 right-0 top-28 z-20 bg-white px-4 py-3 shadow-sm md:top-40">
+        <div className="rounded-2xl border border-gray-200 bg-slate-50 p-4 shadow-sm">
+          <p className="mb-3 text-sm font-semibold text-gray-800">
+            Team Lead:{' '}
+            <span className="text-gray-500">{teamLeadName}</span>
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
+              <button
+                key={loc}
+                onClick={() => setFilter(loc as any)}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition active:scale-[0.97] ${
+                  filter === loc
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {loc}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div className="sticky top-[104px] z-10 mb-5 flex flex-wrap gap-2 border-b border-gray-200 bg-gray-50/95 py-3 backdrop-blur md:top-[136px]">
-        {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
-          <button
-            key={loc}
-            onClick={() => setFilter(loc as any)}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition active:scale-[0.97] ${
-              filter === loc
-                ? 'bg-red-600 text-white hover:bg-red-700'
-                : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            {loc}
-          </button>
-        ))}
-      </div>
+      <div className="h-40 md:h-36" />
 
       {locations.map(loc => renderSection(loc))}
 
