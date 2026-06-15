@@ -25,7 +25,6 @@ const TEAM_LEAD_PINS: Record<string, string> = {
 };
 
 const COUNT_ONLY_ITEMS = [
-  'Buttermilk',
   'Green Cabbage',
   'Purple Cabbage',
   'Butter',
