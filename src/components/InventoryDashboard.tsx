@@ -564,7 +564,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         </div>
       </div>
 
-      <div className="h-40 md:h-36" />
+      <div className="h-52 md:h-36" />
 
       {locations.map(loc => renderSection(loc))}
 
