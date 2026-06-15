@@ -276,80 +276,74 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
     }
   };
 
-  const handleSend = async () => {
-    if (!teamLeadName) return;
+const handleSend = async () => {
+  if (!teamLeadName) return;
 
-    const now = new Date();
+  const now = new Date();
 
-    const timestamp = now.toLocaleString([], {
-      month: 'numeric',
-      day: 'numeric',
-      year: '2-digit',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
+  const timestamp = now.toLocaleString([], {
+    month: 'numeric',
+    day: 'numeric',
+    year: '2-digit',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 
-    setTimestamp(timestamp);
+  setTimestamp(timestamp);
 
-    const missed = items
-      .filter(item => item.stock === 0)
-      .map(item => item.id);
+  const missed = items
+    .filter(item => item.stock === 0)
+    .map(item => item.id);
 
-    if (missed.length > 0 && !readyToSubmit) {
-      setMissedItemIds(missed);
-      setReadyToSubmit(false);
+  if (missed.length > 0 && !readyToSubmit) {
+    setMissedItemIds(missed);
+    setReadyToSubmit(true);
 
-      alert(
-        'Confirm missing items. Some items are still marked as 0. Please review the highlighted rows, then click Confirm again if they are correct.'
-      );
+    alert(
+      'Confirm missing items. Some items are still marked as 0. Please review the highlighted rows, then click Submit Report if they are correct.'
+    );
 
-      return;
-    }
+    return;
+  }
 
-    if (!readyToSubmit) {
-      setMissedItemIds([]);
-      setReadyToSubmit(true);
-      alert('Inventory confirmed. Click Submit Report to generate the report.');
-      return;
-    }
+  setMissedItemIds([]);
+  setReadyToSubmit(false);
 
-    setReadyToSubmit(false);
+  const pdfBase64 = generateInventoryPdf(
+    items.map(item => ({
+      name: item.name,
+      stock: item.stock,
+      note: item.teamleadNote
+        ? `Team Lead: ${item.teamleadNote}`
+        : '',
+    })),
+    'teamlead',
+    timestamp,
+    teamLeadName
+  );
 
-    const pdfBase64 = generateInventoryPdf(
-      items.map(item => ({
-        name: item.name,
-        stock: item.stock,
-        note: item.teamleadNote
-          ? `Team Lead: ${item.teamleadNote}`
-          : '',
-      })),
-      'teamlead',
+  try {
+    const result = await sendInventoryEmail(
+      pdfBase64,
       timestamp,
       teamLeadName
     );
 
-    try {
-      const result = await sendInventoryEmail(
-        pdfBase64,
-        timestamp,
-        teamLeadName
-      );
-
-      if (result.success) {
-        alert(
-          `Inventory report submitted by ${teamLeadName}.\nTimestamp: ${timestamp}`
-        );
-      } else {
-        alert(result.message || 'Email failed to send.');
-      }
-    } catch (error) {
-      console.error(error);
-
+    if (result.success) {
       alert(
-        'The PDF was generated but the email failed to send. Please check the Google Apps Script configuration.'
+        `Inventory report submitted by ${teamLeadName}.\nTimestamp: ${timestamp}`
       );
+    } else {
+      alert(result.message || 'Email failed to send.');
     }
-  };
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      'The PDF was generated but the email failed to send. Please check the Google Apps Script configuration.'
+    );
+  }
+};
 
   const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage')[] = [
     'Refrigerator',
