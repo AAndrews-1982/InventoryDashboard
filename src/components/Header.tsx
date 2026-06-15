@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
             Inventory Dashboard
           </h1>
 
-          <p className="mt-1 text-sm font-medium text-gray-500">
+          <p className="mt-1 text-[4px] font-medium text-gray-500">
             {timestamp ? `Last updated: ${timestamp}` : 'Last updated: —'}
           </p>
         </div>
@@ -52,12 +52,12 @@ const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden relative h-20">
+      <div className="md:hidden relative h-24">
         {/* Logo */}
         <img
           src={`${import.meta.env.BASE_URL}Ruths-Logo-red.png`}
           alt="Ruth's Chicken Logo"
-          className="absolute left-0 top-6 h-12 w-auto object-contain"
+          className="absolute left-0 top-2 h-12 w-auto object-contain"
         />
 
         {/* Centered Title */}
@@ -66,8 +66,8 @@ const Header: React.FC<HeaderProps> = ({
             Inventory Dashboard
           </h1>
 
-          <p className="mt-0.5 text-[4px] font-medium text-gray-500">
-            {timestamp ? `Last updated: ${timestamp}` : 'Last updated: —'}
+          <p className="mt-0.5 text-[9px] font-medium text-gray-500">
+            {timestamp ? `Updated: ${timestamp}` : 'Updated: —'}
           </p>
         </div>
 
