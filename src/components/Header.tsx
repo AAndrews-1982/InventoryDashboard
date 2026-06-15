@@ -52,35 +52,35 @@ const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden relative h-24">
-        {/* Logo */}
-        <img
+      <div className="md:hidden flex items-center justify-between h-20 gap-2">
+      {/* Left: Logo */}
+      <img
           src={`${import.meta.env.BASE_URL}Ruths-Logo-red.png`}
           alt="Ruth's Chicken Logo"
-          className="absolute left-0 top-6 h-12 w-auto object-contain"
-        />
+          className="h-10 w-auto object-contain flex-shrink-0"
+      />
 
-        {/* Centered Title */}
-        <div className="flex h-full flex-col items-center justify-center text-center px-16">
-          <h1 className="text-sm font-bold leading-tight tracking-tight text-gray-900">
-            Inventory Dashboard
-          </h1>
+      {/* Center: Title + Timestamp */}
+      <div className="flex flex-1 flex-col items-center justify-center text-center min-w-0">
+      <h1 className="text-sm font-bold leading-tight tracking-tight text-gray-900">
+      Inventory Dashboard
+      </h1>
 
-          <p className="mt-0.5 text-xs font-xs text-gray-500">
-            {timestamp ? `Updated: ${timestamp}` : 'Updated: —'}
-          </p>
-        </div>
-
-        {/* Logout Button */}
-        {teamLeadName && (
-          <button
-            onClick={onLogout}
-            className="absolute right-0 top-8 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98]"
-          >
-            Log Out
-          </button>
-        )}
+      <p className="mt-0.5 text-[8px] font-medium leading-tight text-gray-500 truncate max-w-[140px]">
+        {timestamp ? `Updated: ${timestamp}` : 'Updated: —'}
+      </p>
       </div>
+
+  {/* Right: Logout Button */}
+  {teamLeadName && (
+    <button
+      onClick={onLogout}
+      className="rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98] flex-shrink-0"
+    >
+      Log Out
+    </button>
+  )}
+</div>
     </header>
   );
 };
