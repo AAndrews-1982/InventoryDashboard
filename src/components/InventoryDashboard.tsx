@@ -539,7 +539,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
   return (
     <div className="w-full px-1 sm:px-4">
-      <div className="fixed left-0 right-0 top-28 z-20 bg-white px-4 py-3 shadow-sm md:top-40">
+      <div className="fixed left-0 right-0 top-21 z-20 bg-white px-4 py-3 shadow-sm md:top-40">
         <div className="rounded-2xl border border-gray-200 bg-slate-50 p-4 shadow-sm">
           <p className="mb-3 text-sm font-semibold text-gray-800">
             Team Lead:{' '}
