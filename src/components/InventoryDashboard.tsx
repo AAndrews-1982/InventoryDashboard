@@ -546,7 +546,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
         </p>
       </div>
 
-      <div className="mb-5 flex flex-wrap gap-2">
+      <div className="sticky top-[104px] z-10 mb-5 flex flex-wrap gap-2 border-b border-gray-200 bg-gray-50/95 py-3 backdrop-blur md:top-[136px]">
         {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
           <button
             key={loc}

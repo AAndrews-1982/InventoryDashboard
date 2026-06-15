@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
         <img
           src={`${import.meta.env.BASE_URL}Ruths-Logo-red.png`}
           alt="Ruth's Chicken Logo"
-          className="absolute left-0 top-2 h-12 w-auto object-contain"
+          className="absolute left-0 top-6 h-12 w-auto object-contain"
         />
 
         {/* Centered Title */}
@@ -66,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({
             Inventory Dashboard
           </h1>
 
-          <p className="mt-0.5 text-[10px] font-medium text-gray-500">
+          <p className="mt-0.5 text-[6px] font-medium text-gray-500">
             {timestamp ? `Last updated: ${timestamp}` : 'Last updated: —'}
           </p>
         </div>
@@ -75,7 +75,7 @@ const Header: React.FC<HeaderProps> = ({
         {teamLeadName && (
           <button
             onClick={onLogout}
-            className="absolute right-0 top-3 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98]"
+            className="absolute right-0 top-8 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-700 active:scale-[0.98]"
           >
             Log Out
           </button>
