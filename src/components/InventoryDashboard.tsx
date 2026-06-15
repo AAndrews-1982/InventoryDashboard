@@ -24,6 +24,32 @@ const TEAM_LEAD_PINS: Record<string, string> = {
   Austin: '5678',
 };
 
+const COUNT_ONLY_ITEMS = [
+  'Buttermilk',
+  'Green Cabbage',
+  'Purple Cabbage',
+  'Butter',
+  'Apple Pineapple Pico',
+  'Mayo',
+  'Ranch Powder',
+  'Salt',
+  'Pepper',
+  'Hot Sauce',
+  'Garlic Salt',
+  'White Pepper',
+  'Smoked Paprika',
+  'Garlic Powder',
+  'Onion Powder',
+  'Poultry Seasoning',
+  'Sage',
+  'Cumin',
+  'Thyme',
+  'Marjoram',
+  'Cayenne',
+  'Korean Red Pepper Flake',
+  'Reaper Seasoning',
+];
+
 const getStorageKeys = (teamLeadName: string) => ({
   dataKey: `ruths_inventory_data_v3_${teamLeadName}`,
   timestampKey: `ruths_inventory_timestamp_v3_${teamLeadName}`,
@@ -357,6 +383,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
             <tbody className="divide-y divide-gray-100">
               {filteredSection.map(item => {
                 const isMissed = missedItemIds.includes(item.id);
+                const isCountOnly = COUNT_ONLY_ITEMS.includes(item.name);
 
                 return (
                   <tr
@@ -384,46 +411,65 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
                     </td>
 
                     <td className="px-3 py-3 text-center">
-                      <div className="flex flex-col items-center gap-1 sm:flex-row sm:justify-center sm:gap-2">
+                      {isCountOnly ? (
                         <select
-                          value={getWholeCases(item.stock)}
+                          value={item.stock}
                           onChange={e =>
                             handleStockChange(
                               item.id,
-                              buildStockValue(
-                                Number(e.target.value),
-                                getPartialCase(item.stock)
-                              )
+                              Number(e.target.value)
                             )
                           }
                           className="w-20 rounded-xl border border-gray-300 bg-white px-2 py-2 text-center text-xs font-semibold text-gray-800 shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100 sm:w-16 sm:text-sm"
                         >
                           {Array.from({ length: 11 }, (_, i) => (
                             <option key={i} value={i}>
-                              {i} Case
+                              {i}
                             </option>
                           ))}
                         </select>
-
-                        <select
-                          value={getPartialCase(item.stock)}
-                          onChange={e =>
-                            handleStockChange(
-                              item.id,
-                              buildStockValue(
-                                getWholeCases(item.stock),
-                                e.target.value
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 sm:flex-row sm:justify-center sm:gap-2">
+                          <select
+                            value={getWholeCases(item.stock)}
+                            onChange={e =>
+                              handleStockChange(
+                                item.id,
+                                buildStockValue(
+                                  Number(e.target.value),
+                                  getPartialCase(item.stock)
+                                )
                               )
-                            )
-                          }
-                          className="w-20 rounded-xl border border-gray-300 bg-white px-2 py-2 text-center text-xs font-semibold text-gray-800 shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100 sm:text-sm"
-                        >
-                          <option value="0">—</option>
-                          <option value="0.25">1/4</option>
-                          <option value="0.5">1/2</option>
-                          <option value="0.75">3/4</option>
-                        </select>
-                      </div>
+                            }
+                            className="w-20 rounded-xl border border-gray-300 bg-white px-2 py-2 text-center text-xs font-semibold text-gray-800 shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100 sm:w-16 sm:text-sm"
+                          >
+                            {Array.from({ length: 11 }, (_, i) => (
+                              <option key={i} value={i}>
+                                {i}
+                              </option>
+                            ))}
+                          </select>
+
+                          <select
+                            value={getPartialCase(item.stock)}
+                            onChange={e =>
+                              handleStockChange(
+                                item.id,
+                                buildStockValue(
+                                  getWholeCases(item.stock),
+                                  e.target.value
+                                )
+                              )
+                            }
+                            className="w-20 rounded-xl border border-gray-300 bg-white px-2 py-2 text-center text-xs font-semibold text-gray-800 shadow-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100 sm:text-sm"
+                          >
+                            <option value="0">—</option>
+                            <option value="0.25">1/4</option>
+                            <option value="0.5">1/2</option>
+                            <option value="0.75">3/4</option>
+                          </select>
+                        </div>
+                      )}
                     </td>
 
                     <td className="px-3 py-3">
