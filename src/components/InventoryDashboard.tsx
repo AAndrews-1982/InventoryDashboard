@@ -393,28 +393,40 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
 
                 return (
                   <tr
-                    key={item.id}
-                    className={
-                      isMissed
-                        ? 'bg-amber-50 ring-2 ring-amber-300'
-                        : 'bg-white hover:bg-gray-50'
-                    }
-                  >
+  key={item.id}
+  className={
+    isMissed
+      ? 'bg-red-100 border-l-4 border-red-500'
+      : 'bg-white hover:bg-gray-50'
+  }
+>
                     <td className="px-3 py-3 font-semibold text-gray-900">
-                      {item.url ? (
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => handleItemClick(item.id)}
-                          className="text-gray-900 underline-offset-2 hover:underline"
-                        >
-                          {item.name}
-                        </a>
-                      ) : (
-                        item.name
-                      )}
-                    </td>
+  {item.url ? (
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => handleItemClick(item.id)}
+      className="text-gray-900 underline-offset-2 hover:underline"
+    >
+      {isMissed && (
+        <span className="mr-2 font-bold text-red-600">
+          ⚠
+        </span>
+      )}
+      {item.name}
+    </a>
+  ) : (
+    <>
+      {isMissed && (
+        <span className="mr-2 font-bold text-red-600">
+          ⚠
+        </span>
+      )}
+      {item.name}
+    </>
+  )}
+</td>
 
                     <td className="px-3 py-3 text-center">
                       {isCountOnly ? (
