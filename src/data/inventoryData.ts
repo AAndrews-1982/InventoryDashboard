@@ -200,7 +200,20 @@ export const inventoryData: InventoryItem[] = [
   required: 0,
   stock: 0,
 },
-
+{
+  id: 1018,
+  name: 'Red Food Liners',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1019,
+  name: 'Black Food Liners',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
 
 // Soda
 {
