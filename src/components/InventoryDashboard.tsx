@@ -50,9 +50,9 @@ const COUNT_ONLY_ITEMS = [
 ];
 
 const getStorageKeys = (teamLeadName: string) => ({
-  dataKey: `ruths_inventory_data_v3_${teamLeadName}`,
-  timestampKey: `ruths_inventory_timestamp_v3_${teamLeadName}`,
-  clickedKey: `ruths_inventory_clicked_v3_${teamLeadName}`,
+  dataKey: `ruths_inventory_data_v4_${teamLeadName}`,
+  timestampKey: `ruths_inventory_timestamp_v4_${teamLeadName}`,
+  clickedKey: `ruths_inventory_clicked_v4_${teamLeadName}`,
 });
 
 const getDefaultItems = (): ItemWithNotes[] => {
@@ -165,7 +165,7 @@ const InventoryDashboard: React.FC<InventoryDashboardProps> = ({
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [filter, setFilter] = useState<
-    'Refrigerator' | 'Freezer' | 'Dry Storage' | 'All'
+    'Refrigerator' | 'Freezer' | 'Dry Storage' | 'Disposables' | 'Soda' | 'All'
   >('All');
   const [clickedItemIds, setClickedItemIds] = useState<number[]>(
     () => getStoredClickedItems(storedTeamLead)
@@ -345,10 +345,12 @@ const handleSend = async () => {
   }
 };
 
-  const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage')[] = [
+  const locations: ('Refrigerator' | 'Freezer' | 'Dry Storage' | 'Disposables' | 'Soda')[] = [
     'Refrigerator',
     'Freezer',
     'Dry Storage',
+    'Disposables',
+    'Soda',
   ];
 
   const renderSection = (location: typeof locations[number]) => {
@@ -551,7 +553,7 @@ const handleSend = async () => {
 
   return (
     <div className="w-full px-1 sm:px-4">
-      <div className="fixed left-0 right-0 top-21 z-20 bg-white px-4 py-3 shadow-sm md:top-40">
+      <div className="fixed left-0 right-0 top-20 z-20 bg-white px-4 py-3 shadow-sm md:top-40">
         <div className="rounded-2xl border border-gray-200 bg-slate-50 p-4 shadow-sm">
           <p className="mb-3 text-sm font-semibold text-gray-800">
             Team Lead:{' '}
@@ -559,7 +561,7 @@ const handleSend = async () => {
           </p>
 
           <div className="flex flex-wrap gap-2">
-            {['All', 'Refrigerator', 'Freezer', 'Dry Storage'].map(loc => (
+            {['All', 'Refrigerator', 'Freezer', 'Dry Storage', 'Disposables', 'Soda'].map(loc => (
               <button
                 key={loc}
                 onClick={() => setFilter(loc as any)}

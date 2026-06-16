@@ -1,7 +1,7 @@
 export type InventoryItem = {
   id: number;
   name: string;
-  location: 'Refrigerator' | 'Freezer' | 'Dry Storage';
+  location: 'Refrigerator' | 'Freezer' | 'Dry Storage' | 'Disposables' | 'Soda';
   stock: number;
   required: number;
   note?: string;
@@ -78,4 +78,186 @@ export const inventoryData: InventoryItem[] = [
   { id: 40, name: 'Smoked Paprika (Each)', stock: 0, required: 5, location: 'Dry Storage' },
   { id: 41, name: 'Korean Red Pepper Flake (Each)', stock: 0, required: 5, location: 'Dry Storage' },
   { id: 42, name: 'Reaper Seasoning (Each)', stock: 0, required: 5, location: 'Dry Storage' },
+
+
+  // Disposables
+{
+  id: 1001,
+  name: 'FOH Paper Towel',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1002,
+  name: 'BOH Paper Towel',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1003,
+  name: 'Straws',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1004,
+  name: 'FOH Dispenser Napkin',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1005,
+  name: 'Fork',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1006,
+  name: 'Knife',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1007,
+  name: '5x5 Takeout Box',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1008,
+  name: '9x6 Takeout Box',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1009,
+  name: '9x9 Takeout Box',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1010,
+  name: 'Soufflé Cup',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1011,
+  name: 'Small Glove',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1012,
+  name: 'Medium Glove',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1013,
+  name: 'Large Glove',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1014,
+  name: 'XL Glove',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1015,
+  name: 'Sandwich Glove',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1016,
+  name: '9 oz. Cup',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 1017,
+  name: '16 oz. Cup',
+  location: 'Disposables',
+  required: 0,
+  stock: 0,
+},
+
+
+// Soda
+{
+  id: 2001,
+  name: 'Pepsi',
+  location: 'Soda',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 2002,
+  name: 'Pepsi Zero',
+  location: 'Soda',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 2003,
+  name: 'Dr. Pepper',
+  location: 'Soda',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 2004,
+  name: 'Diet Dr. Pepper',
+  location: 'Soda',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 2005,
+  name: 'Tropicana Lemonade',
+  location: 'Soda',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 2006,
+  name: 'Mt. Dew',
+  location: 'Soda',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 2007,
+  name: 'Mug Root Beer',
+  location: 'Soda',
+  required: 0,
+  stock: 0,
+},
+{
+  id: 2008,
+  name: 'Starry',
+  location: 'Soda',
+  required: 0,
+  stock: 0,
+},
+
 ];
