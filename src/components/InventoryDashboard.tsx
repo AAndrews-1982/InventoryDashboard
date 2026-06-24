@@ -24,6 +24,7 @@ const TEAM_LEAD_PINS: Record<string, string> = {
   Austin: '5678',
 };
 
+// Items that are Count only
 const COUNT_ONLY_ITEMS = [
   'Green Cabbage',
   'Purple Cabbage',
@@ -292,8 +293,9 @@ const handleSend = async () => {
   setTimestamp(timestamp);
 
   const missed = items
-    .filter(item => item.stock === 0)
-    .map(item => item.id);
+  .filter(item => item.assignedTo === teamLeadName)
+  .filter(item => item.stock === 0)
+  .map(item => item.id);
 
   if (missed.length > 0 && !readyToSubmit) {
     setMissedItemIds(missed);
@@ -310,7 +312,9 @@ const handleSend = async () => {
   setReadyToSubmit(false);
 
   const pdfBase64 = generateInventoryPdf(
-    items.map(item => ({
+    items
+    .filter(item => item.assignedTo === teamLeadName)
+    .map(item => ({
       name: item.name,
       stock: item.stock,
       note: item.teamleadNote
@@ -354,7 +358,7 @@ const handleSend = async () => {
   ];
 
   const renderSection = (location: typeof locations[number]) => {
-    const filteredSection = items.filter(item => item.location === location);
+    const filteredSection = items.filter(item => item.location === location && item.assignedTo === teamLeadName);
 
     if (filter !== 'All' && filter !== location) return null;
 
