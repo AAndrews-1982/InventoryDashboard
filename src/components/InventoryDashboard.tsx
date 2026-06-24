@@ -311,27 +311,29 @@ const handleSend = async () => {
   setMissedItemIds([]);
   setReadyToSubmit(false);
 
-  const pdfBase64 = generateInventoryPdf(
-    items
+const pdfBase64 = generateInventoryPdf(
+  items
     .filter(item => item.assignedTo === teamLeadName)
     .map(item => ({
       name: item.name,
       stock: item.stock,
+      required: item.required,
+      location: item.location,
       note: item.teamleadNote
         ? `Team Lead: ${item.teamleadNote}`
         : '',
     })),
-    'teamlead',
+  'teamlead',
+  timestamp,
+  teamLeadName
+);
+
+try {
+  const result = await sendInventoryEmail(
+    pdfBase64,
     timestamp,
     teamLeadName
   );
-
-  try {
-    const result = await sendInventoryEmail(
-      pdfBase64,
-      timestamp,
-      teamLeadName
-    );
 
     if (result.success) {
       alert(
